@@ -10,7 +10,8 @@ public class WikiContext : DbContext {
         modelBuilder.Entity<Article>(entity => {
             entity.Property(e => e.Title).IsRequired();
             entity.HasIndex(e => e.Title).IsUnique();
-            entity.HasMany(a => a.Revisions).WithOne().IsRequired();
+            entity.HasMany(a => a.Revisions).WithOne().HasForeignKey(r => r.ArticleId).IsRequired();
+            entity.HasOne(a => a.LatestRevision).WithOne().HasForeignKey<Article>(a => a.LatestRevisionId);
         });
     }
 }

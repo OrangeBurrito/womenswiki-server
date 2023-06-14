@@ -36,5 +36,10 @@ public static class EndpointBuilder {
                 .Include(a => a.Revisions)
                 .FirstOrDefaultAsync();
         });
+
+        app.MapPost("/create_article", async (Article article, ArticleService articleService) => {
+            await articleService.CreateArticleAsync(article);
+            return Results.Created($"/article/{article.Slug}", article);
+        });
     }
 }

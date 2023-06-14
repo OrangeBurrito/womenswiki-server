@@ -8,7 +8,10 @@ public class ArticleService {
     public async Task CreateArticleAsync(Article article) {
         article.Slug = Article.GenerateSlug(article.Title);
         _context.Articles.Add(article);
-        
+        await _context.SaveChangesAsync();
+
+        article.LatestRevisionId = article.Revisions.First().Id;
+        article.LatestRevision = article.Revisions.First();
         await _context.SaveChangesAsync();
     }
 }
