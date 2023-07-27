@@ -13,16 +13,16 @@ public class SeedService {
 
         var articles = new List<Article> {
             new Article {
-                Title = "First Article",
-                Revisions = new List<Revision> { new Revision { Content = "# To bee or not to bee" } }
+                Title = "Lorem Ipsum",
+                Revisions = new List<Revision> { new Revision { Content = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua." } }
             },
             new Article {
-                Title = "Second Article",
-                Revisions = new List<Revision> { new Revision { Content = "# The Second Article" } }
+                Title = "Bee Movie",
+                Revisions = new List<Revision> { new Revision { Content = "According to all known laws of aviation, there is no way a bee should be able to fly. Its wings are too small to get its fat little body off the ground. The bee, of course, flies anyway because bees don't care what humans think is impossible." } }
             },
             new Article {
-                Title = "Third Article",
-                Revisions = new List<Revision> { new Revision { Content = "# How to chew grass like a real cow" } }
+                Title = "About Copypastas",
+                Revisions = new List<Revision> { new Revision { Content = "A copypasta is a block of text that is copied and pasted across the Internet by individuals through online forums and social networking websites." } }
             },
             new Article {
                 Title = "HackMD Stuff",

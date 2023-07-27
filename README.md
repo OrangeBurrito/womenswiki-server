@@ -1,3 +1,3 @@
 # WomensWiki Server
 
-Backend for WomensWiki, uses Postgres.
+ASP.NET Backend for WomensWiki, uses Postgres.
