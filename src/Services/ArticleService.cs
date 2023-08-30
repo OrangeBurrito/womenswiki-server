@@ -7,16 +7,21 @@ public class ArticleService {
         _context = wikiContext;
     }
 
-    public async Task CreateArticleAsync(Article article) {
+    public async Task<MutationResult<Article>> CreateArticleAsync(Article article) {
+        var errors = new List<string>();
         if (article.Title == null) {
-            throw new ArgumentException("Title is required.");
+            errors.Add("Title is required.");
         }
         if (await _context.Articles.AnyAsync(a => a.Title == article.Title)) {
-            throw new ArgumentException("Title must be unique.");
+            errors.Add("Title must be unique.");
         }
 
         if (article.Revisions.First().Content == null || article.Revisions.First().Content.Length < 100) {
-            throw new ArgumentException("Content is required, and must be at least 100 characters long.");
+            errors.Add("Content is required, and must be at least 100 characters long.");
+        }
+
+        if (errors.Count > 0) {
+            return new MutationResult<Article>(errors: errors);
         }
 
         article.Slug = Article.GenerateSlug(article.Title);
@@ -26,6 +31,8 @@ public class ArticleService {
         article.LatestRevisionId = article.Revisions.First().Id;
         article.LatestRevision = article.Revisions.First();
         await _context.SaveChangesAsync();
+
+        return new MutationResult<Article>(article);
     }
 
     public async Task UpdateArticleAsync(Revision revision) {

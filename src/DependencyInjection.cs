@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+
 public static class DependencyInjection {
     public static IServiceCollection AddWikiServices(this IServiceCollection services, WebApplicationBuilder builder) {
         services.AddDbContext<WikiContext>(options => {
@@ -6,12 +7,19 @@ public static class DependencyInjection {
         });
         services.AddCors(options => {
             IConfiguration config = builder.Configuration;
-            options.AddDefaultPolicy(builder => builder.WithOrigins(config.GetSection("AllowedOrigins").Value ?? "")
+            options.AddPolicy("WikiPolicy", policy => policy.WithOrigins(config.GetSection("AllowedOrigins").Get<string[]>() ?? new string[] {})
             .AllowAnyMethod().AllowAnyHeader());
         });
         services.AddScoped<SeedService>();
         services.AddScoped<ArticleService>();
 
+        return services;
+    }
+    public static IServiceCollection SetupGraphQL(this IServiceCollection services, WebApplicationBuilder builder) {
+        services.AddGraphQLServer()
+        .RegisterDbContext<WikiContext>()
+        .AddQueryType<Query>()
+        .AddInputObjectType<Article>();
         return services;
     }
 }

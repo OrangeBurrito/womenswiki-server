@@ -3,6 +3,13 @@ using Microsoft.EntityFrameworkCore;
 
 public static class EndpointBuilder {
     public static void AddApiEndpoints(this WebApplication app) {
+        app.MapPost("/register", () => {
+            return "Register!";
+        });
+        app.MapPost("/login", (HttpContext context) => {
+            return "login!";
+        });
+
         app.MapPost("/seed", async (SeedService seedService) => {
             await seedService.Seed();
             return Results.Ok("Seeded Data");

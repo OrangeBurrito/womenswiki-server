@@ -1,10 +1,14 @@
 ﻿var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddWikiServices(builder);
+builder.Services
+    .AddWikiServices(builder)
+    .SetupGraphQL(builder);
 
 var app = builder.Build();
 
-app.UseCors();
+app.UseCors("WikiPolicy");
+
+app.MapGraphQL();
 
 app.AddApiEndpoints();
 
