@@ -18,8 +18,9 @@ public static class DependencyInjection {
     public static IServiceCollection SetupGraphQL(this IServiceCollection services, WebApplicationBuilder builder) {
         services.AddGraphQLServer()
         .RegisterDbContext<WikiContext>()
+        .RegisterService<ArticleService>()
         .AddQueryType<Query>()
-        .AddInputObjectType<Article>();
+        .AddMutationType<Mutation>();
         return services;
     }
 }

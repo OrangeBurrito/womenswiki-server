@@ -1,6 +1,4 @@
 public class Mutation {
-    public async Task<MutationResult<Article>> CreateArticleAsync(
-        [Service] ArticleService articleService,
-        Article article
-        ) => await articleService.CreateArticleAsync(article);
+    public async Task<Article> CreateArticleAsync(ArticleService articleService, ArticleDTO articleDTO) =>
+        await articleService.CreateArticleAsync(articleDTO);
 }

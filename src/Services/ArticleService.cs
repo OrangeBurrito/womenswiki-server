@@ -7,24 +7,34 @@ public class ArticleService {
         _context = wikiContext;
     }
 
-    public async Task<MutationResult<Article>> CreateArticleAsync(Article article) {
-        var errors = new List<string>();
-        if (article.Title == null) {
-            errors.Add("Title is required.");
+    public async Task<Article> CreateArticleAsync(ArticleDTO articleDTO) {
+        var errors = new List<Error>();
+
+        if (articleDTO.Title == null) {
+            errors.Add(new Error("Title is required."));
         }
-        if (await _context.Articles.AnyAsync(a => a.Title == article.Title)) {
-            errors.Add("Title must be unique.");
+        if (await _context.Articles.AnyAsync(a => a.Title == articleDTO.Title)) {
+            errors.Add(new Error("Title must be unique."));
         }
 
-        if (article.Revisions.First().Content == null || article.Revisions.First().Content.Length < 100) {
-            errors.Add("Content is required, and must be at least 100 characters long.");
+        if (articleDTO.Content == null || articleDTO.Content.Length < 100) {
+            errors.Add(new Error("Content is required, and must be at least 100 characters long."));
         }
 
         if (errors.Count > 0) {
-            return new MutationResult<Article>(errors: errors);
+            throw new AggregateException(errors.Select(e => new ArgumentException(e.Message)));
         }
 
-        article.Slug = Article.GenerateSlug(article.Title);
+        var article = new Article();
+
+        article.Title = articleDTO.Title;
+        article.Slug = Article.GenerateSlug(articleDTO.Title);
+        article.Revisions = new List<Revision> {
+            new Revision {
+                Content = articleDTO.Content
+            }
+        };
+
         _context.Articles.Add(article);
         await _context.SaveChangesAsync();
 
@@ -32,7 +42,7 @@ public class ArticleService {
         article.LatestRevision = article.Revisions.First();
         await _context.SaveChangesAsync();
 
-        return new MutationResult<Article>(article);
+        return article;
     }
 
     public async Task UpdateArticleAsync(Revision revision) {

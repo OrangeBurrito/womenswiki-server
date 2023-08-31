@@ -44,9 +44,9 @@ public static class EndpointBuilder {
                 .FirstOrDefaultAsync();
         });
 
-        app.MapPost("/create_article", async (Article article, ArticleService articleService) => {
-            await articleService.CreateArticleAsync(article);
-            return Results.Created($"/article/{article.Slug}", article);
+        app.MapPost("/create_article", async (ArticleDTO articleDTO, ArticleService articleService) => {
+            await articleService.CreateArticleAsync(articleDTO);
+            return Results.Created($"/article/{articleDTO.Title}", articleDTO);
         });
 
         app.MapPost("/update_article", async (Revision revision, WikiContext context, ArticleService articleService) => {
