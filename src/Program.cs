@@ -23,34 +23,35 @@ app.UseCors("WikiPolicy");
 
 app.MapGet("/", () => "Hello World!");
 
-app.MapGet("/articles", (WikiContext context) => {
-    return context.Articles;
+app.MapGet("/articles", (WikiContext wikiContext) => {
+    return wikiContext.Articles;
 });
 
-app.MapGet("/article/{id}", (WikiContext context, Guid id) => {
+app.MapGet("/article/{id}", (WikiContext wikiContext, Guid id) => {
     Console.WriteLine(id);
-    return context.Articles.Find(id);
+    return wikiContext.Articles.Find(id);
 });
 
-app.MapPost("/article/create", async (WikiContext context, string Title) => {
-    var article = new Article(Title);
+app.MapPost("/article/create", async (WikiContext wikiContext, HttpContext httpContext) => {
+    var title = httpContext.Request.Form["title"].ToString();
+    var article = new Article(title);
 
-    await context.Articles.AddAsync(article);
-    await context.SaveChangesAsync();
+    await wikiContext.Articles.AddAsync(article);
+    await wikiContext.SaveChangesAsync();
     return article;
 });
 
-app.MapPatch("/article/update/{id}", async (WikiContext context, Guid id, string Title) => {
-    var article = await context.Articles.FindAsync(id);
+app.MapPatch("/article/update/{id}", async (WikiContext wikiContext, Guid id, string Title) => {
+    var article = await wikiContext.Articles.FindAsync(id);
     article.Update(Title);
-    await context.SaveChangesAsync();
+    await wikiContext.SaveChangesAsync();
     return article;
 });
 
-app.MapDelete("/article/delete/{id}", async (WikiContext context, Guid id) => {
-    var article = await context.Articles.FindAsync(id);
-    context.Articles.Remove(article);
-    await context.SaveChangesAsync();
+app.MapDelete("/article/delete/{id}", async (WikiContext wikiContext, Guid id) => {
+    var article = await wikiContext.Articles.FindAsync(id);
+    wikiContext.Articles.Remove(article);
+    await wikiContext.SaveChangesAsync();
     return article;
 });
 
