@@ -4,4 +4,8 @@ public class Article : BaseEntity {
     public Article(string title) {
         Title = title;
     }
+
+    public void Update(string title) {
+        Title = title;
+    }
 }
