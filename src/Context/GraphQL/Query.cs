@@ -1,3 +1,4 @@
+using HotChocolate.Execution;
 using Microsoft.EntityFrameworkCore;
 
 public class Query {
@@ -6,6 +7,7 @@ public class Query {
             .Include(a => a.LatestRevision)
             .FirstOrDefaultAsync();
 
+    [UseSorting]
     public async Task<List<Article>> GetArticlesAsync(WikiContext context, int first) =>
         await context.Articles.Include(a => a.LatestRevision).Take(first).ToListAsync();
 }

@@ -15,12 +15,14 @@ public static class DependencyInjection {
 
         return services;
     }
+    
     public static IServiceCollection SetupGraphQL(this IServiceCollection services, WebApplicationBuilder builder) {
         services.AddGraphQLServer()
         .RegisterDbContext<WikiContext>()
         .RegisterService<ArticleService>()
         .AddQueryType<Query>()
-        .AddMutationType<Mutation>();
+        .AddMutationType<Mutation>()
+        .AddSorting();
         return services;
     }
 }
