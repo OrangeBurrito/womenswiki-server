@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace WomensWikiServer.Migrations
 {
     [DbContext(typeof(WikiContext))]
-    partial class WikiContextModelSnapshot : ModelSnapshot
+    [Migration("20231024230138_LatestRevision")]
+    partial class LatestRevision
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,8 +33,10 @@ namespace WomensWikiServer.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid?>("LatestRevisionId")
-                        .HasColumnType("uuid");
+                    b.Property<Guid>("LatestRevisionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValue(new Guid("bd839b9f-9fb2-45ca-aca2-ca5d55fbd3fe"));
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -51,6 +56,11 @@ namespace WomensWikiServer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("ArticleId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValue(new Guid("46622167-4b20-46af-ba9f-22351e4fee25"));
+
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("text");
@@ -59,6 +69,8 @@ namespace WomensWikiServer.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ArticleId");
 
                     b.ToTable("Revisions");
                 });
@@ -88,16 +100,23 @@ namespace WomensWikiServer.Migrations
             modelBuilder.Entity("WomensWiki.Domain.Article", b =>
                 {
                     b.HasOne("WomensWiki.Domain.Revision", "LatestRevision")
-                        .WithOne("Article")
-                        .HasForeignKey("WomensWiki.Domain.Article", "LatestRevisionId");
+                        .WithOne()
+                        .HasForeignKey("WomensWiki.Domain.Article", "LatestRevisionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("LatestRevision");
                 });
 
             modelBuilder.Entity("WomensWiki.Domain.Revision", b =>
                 {
-                    b.Navigation("Article")
+                    b.HasOne("WomensWiki.Domain.Article", "Article")
+                        .WithMany()
+                        .HasForeignKey("ArticleId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Article");
                 });
 #pragma warning restore 612, 618
         }
