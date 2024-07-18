@@ -10,10 +10,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddMediatR(c => c.RegisterServicesFromAssembly(assembly));
 builder.Services.AddValidatorsFromAssembly(assembly);
-// builder.Services.AddGraphQLServer().AddTypes();
+builder.Services.AddGraphQLServer();
 
 var app = builder.Build();
-app.UseCors("WikiPolicy");
 
-app.MapEndpoints();
+app.MapGraphQL();
+
 app.Run();

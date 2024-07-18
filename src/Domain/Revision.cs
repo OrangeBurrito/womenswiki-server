@@ -1,6 +1,6 @@
 namespace WomensWiki.Domain;
 
-public class Revision : BaseEntity {
+public class Revision : Entity {
     public Article Article { get; private set; }
     public string Content { get; private set; }
 

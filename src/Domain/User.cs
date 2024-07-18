@@ -1,6 +1,6 @@
 namespace WomensWiki.Domain;
 
-public class User : BaseEntity {
+public class User : Entity {
     public string Username { get; private set; }
     public string Email { get; private set; }
 
