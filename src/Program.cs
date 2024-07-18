@@ -1,19 +1,16 @@
+using Microsoft.EntityFrameworkCore;
+using WomensWiki.Common;
+using FluentValidation;
+
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<WikiContext>(options => {
-    options.UseNpgsql(builder.Configuration.GetConnectionString("Postgres"));
-});
-builder.Services.AddCors(options => {
-    options.AddPolicy("WikiPolicy", policy => {
-        var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
-        if (allowedOrigins != null) {
-            policy.WithOrigins(allowedOrigins);
-        } else {
-            policy.AllowAnyOrigin();
-        }
-        policy.AllowAnyMethod().AllowAnyHeader();
-    });
-});
+var assembly = typeof(Program).Assembly;
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddMediatR(c => c.RegisterServicesFromAssembly(assembly));
+builder.Services.AddValidatorsFromAssembly(assembly);
+// builder.Services.AddGraphQLServer().AddTypes();
 
 var app = builder.Build();
 app.UseCors("WikiPolicy");
