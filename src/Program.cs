@@ -5,7 +5,7 @@ using FluentValidation;
 var builder = WebApplication.CreateBuilder(args);
 
 var assembly = typeof(Program).Assembly;
-var connectionString = builder.Environment.IsDevelopment() ? "DevConnection" : "SQLCONNSTR_AzureConnection";
+var connectionString = builder.Environment.IsDevelopment() ? "DevConnection" : "AzureConnection";
 
 builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlServer(builder.Configuration.GetConnectionString(connectionString)));
 builder.Services.AddMediatR(c => c.RegisterServicesFromAssembly(assembly));
@@ -15,6 +15,10 @@ builder.Services.AddGraphQLServer().AddTypes();
 var app = builder.Build();
 
 app.MapGraphQL();
+
+app.MapGet("/connection", (AppDbContext dbContext) => {
+    return "Connection string: " + connectionString + " space " + builder.Configuration.GetConnectionString(connectionString);
+});
 
 app.MapPost("/migrate", async (AppDbContext dbContext) => {
     await dbContext.Database.MigrateAsync();
