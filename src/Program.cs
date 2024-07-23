@@ -16,4 +16,9 @@ var app = builder.Build();
 
 app.MapGraphQL();
 
+app.MapPost("/migrate", async (AppDbContext dbContext) => {
+    await dbContext.Database.MigrateAsync();
+    return Results.Ok();
+});
+
 app.Run();
