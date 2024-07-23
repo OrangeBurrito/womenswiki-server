@@ -1,17 +1,20 @@
 namespace WomensWiki.Domain;
 
 public class Article : Entity {
-    public string Title { get; private set; }
+    public string Title { get; private set; } = null!;
+    public string Content { get; private set; } = null!;
 
-    public Guid? LatestRevisionId { get; private set; }
-    public Revision? LatestRevision { get; private set; }
-
-    public Article(string title) {
-        Title = title;
+    public static Article Create(string title, string content) {
+        var article = new Article {
+            Title = title,
+            Content = content
+        };
+        return article;
     }
 
-    public void Update(Revision revision) {
-        LatestRevision = revision;
-        LatestRevisionId = revision.Id;
+    public static Article Update(Article article, string title, string content) {
+        article.Title = title;
+        article.Content = content;
+        return article;
     }
 }
