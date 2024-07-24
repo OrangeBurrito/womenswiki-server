@@ -16,10 +16,6 @@ var app = builder.Build();
 
 app.MapGraphQL();
 
-app.MapGet("/connection", (AppDbContext dbContext) => {
-    return "Connection string: " + connectionString + " space " + builder.Configuration.GetConnectionString(connectionString);
-});
-
 app.MapPost("/migrate", async (AppDbContext dbContext) => {
     await dbContext.Database.MigrateAsync();
     return Results.Ok();

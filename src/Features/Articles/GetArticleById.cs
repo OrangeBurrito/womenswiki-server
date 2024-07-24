@@ -11,7 +11,7 @@ public static class GetArticleById {
         public async Task<ArticleResponse> Handle(GetArticleByIdRequest request, CancellationToken cancellationToken) {
             var article = await dbContext.Articles.FindAsync(request.Id);
             
-            return new ArticleResponse(article.Id, article.CreatedAt, article.Title, article.Content);
+            return ArticleResponse.FromArticle(article);
         }
     }
 
