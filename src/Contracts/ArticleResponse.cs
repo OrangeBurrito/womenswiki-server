@@ -2,8 +2,8 @@ using WomensWiki.Domain;
 
 namespace WomensWiki.Contracts;
 
-public record ArticleResponse(Guid Id, DateTimeOffset? UpdatedAt, string Title, string Content) {
+public record ArticleResponse(Guid Id, DateTimeOffset CreatedAt, DateTimeOffset? UpdatedAt, string Title, string Content) {
     public static ArticleResponse FromArticle(Article article) {
-        return new ArticleResponse(article.Id, article.UpdatedAt, article.Title, article.Content);
+        return new ArticleResponse(article.Id, article.CreatedAt, article.UpdatedAt, article.Title, article.Content);
     }
 }

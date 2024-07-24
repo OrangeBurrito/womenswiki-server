@@ -10,7 +10,7 @@ var connectionString = builder.Environment.IsDevelopment() ? "DevConnection" : "
 builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlServer(builder.Configuration.GetConnectionString(connectionString)));
 builder.Services.AddMediatR(c => c.RegisterServicesFromAssembly(assembly));
 builder.Services.AddValidatorsFromAssembly(assembly);
-builder.Services.AddGraphQLServer().AddTypes();
+builder.Services.AddGraphQLServer().AddTypes().AddSorting();
 
 var app = builder.Build();
 

@@ -11,8 +11,6 @@ public class AppDbContext : DbContext {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
-        // entity model
-        // article id
         modelBuilder.Entity<Article>().HasKey(a => a.Id);
         modelBuilder.Entity<Article>().Property(a => a.Id).ValueGeneratedNever();
         modelBuilder.Entity<Article>()
