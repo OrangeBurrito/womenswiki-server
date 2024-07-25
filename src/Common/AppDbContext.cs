@@ -21,6 +21,7 @@ public class AppDbContext : DbContext {
 
         modelBuilder.Entity<Revision>().HasKey(r => r.Id);
         modelBuilder.Entity<Revision>().Property(r => r.Id).ValueGeneratedNever();
+        modelBuilder.Entity<Revision>().Property(r => r.Summary).HasMaxLength(72).IsRequired(false);
         modelBuilder.Entity<Revision>()
             .HasOne(r => r.Article)
             .WithMany(a => a.History)

@@ -18,8 +18,7 @@ public static class GetArticleBySlug {
     [QueryType]
     public class GetArticleBySlugQuery {
         public async Task<ArticleResponse> GetArticleBySlugAsync([Service] ISender sender, string slug) {
-            var input = new GetArticleBySlugRequest(slug);
-            return await sender.Send(input);
+            return await sender.Send(new GetArticleBySlugRequest(slug));
         }
     }
 }
