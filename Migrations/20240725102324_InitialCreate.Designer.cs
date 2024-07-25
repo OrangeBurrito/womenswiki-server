@@ -12,8 +12,8 @@ using WomensWiki.Common;
 namespace WomensWiki.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240724085143_AddArticleSlug")]
-    partial class AddArticleSlug
+    [Migration("20240725102324_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -72,7 +72,8 @@ namespace WomensWiki.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Summary")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(72)
+                        .HasColumnType("nvarchar(72)");
 
                     b.HasKey("Id");
 
