@@ -1,3 +1,5 @@
+using WomensWiki.Domain.Articles;
+
 namespace WomensWiki.Domain;
 
 public class Revision : Entity {

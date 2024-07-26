@@ -1,4 +1,4 @@
-namespace WomensWiki.Domain;
+namespace WomensWiki.Domain.Articles;
 
 public class Article : Entity {
     public string Title { get; private set; } = null!;

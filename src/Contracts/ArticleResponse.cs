@@ -1,4 +1,4 @@
-using WomensWiki.Domain;
+using WomensWiki.Domain.Articles;
 
 namespace WomensWiki.Contracts;
 

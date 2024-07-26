@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using WomensWiki.Domain;
+using WomensWiki.Domain.Articles;
 
 namespace WomensWiki.Common;
 
