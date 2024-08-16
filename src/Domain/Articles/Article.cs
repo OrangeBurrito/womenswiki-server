@@ -1,11 +1,13 @@
 namespace WomensWiki.Domain.Articles;
+using Tag = WomensWiki.Domain.Tags.Tag;
 
 public class Article : Entity {
     public string Title { get; private set; } = null!;
     public string Content { get; private set; } = null!;
     public string Slug { get; private set; } = null!;
-    public List<Revision> History { get; private set; } = new();
+    public List<Tag> Tags { get; private set; } = [];
     public DateTimeOffset? UpdatedAt { get; private set; }
+    public List<Revision> History { get; private set; } = [];
 
     public static Article Create(string title, string content) {
         var article = new Article {
@@ -23,7 +25,12 @@ public class Article : Entity {
         UpdatedAt = revision.CreatedAt;
     }
 
-    private static string GenerateSlug(string title) {
+    public void UpdateTags(List<Tag> tags) {
+        Tags.Clear();
+        Tags.AddRange(tags);
+    }
+
+    public static string GenerateSlug(string title) {
         return title.ToLower().Replace(" ", "_");
     }
 }
