@@ -9,7 +9,7 @@ public static class GetArticleBySlug {
     public record GetArticleBySlugRequest(string Slug) : IRequest<ArticleResponse>;
        internal sealed class GetArticleBySlugHandler(AppDbContext dbContext) : IRequestHandler<GetArticleBySlugRequest, ArticleResponse> {
         public async Task<ArticleResponse> Handle(GetArticleBySlugRequest request, CancellationToken cancellationToken) {
-            var article = await dbContext.Articles.FirstOrDefaultAsync(a => a.Slug == request.Slug);
+            var article = await dbContext.Articles.Include(a => a.Tags).FirstOrDefaultAsync(a => a.Slug == request.Slug);
             
             return ArticleResponse.FromArticle(article);
         }

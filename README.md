@@ -2,4 +2,6 @@
 ASP.NET Core backend for WomensWiki.
 
 ## Usage
-To test, spin up a docker instance of SQL Server and use the GraphQL editor.
+To run locally, clone this repo and setup a Docker instance running SQL Server. Add the connection string (`DevConnection`) to `appsettings.Development.json`, then run migrations.
+
+Test queries/mutations at the `localhost:5276/graphql` endpoint.
