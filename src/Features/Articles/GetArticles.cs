@@ -15,6 +15,7 @@ public static class GetArticles {
                 dbContext.Articles.OrderBy(a => a.CreatedAt);
 
             var articles = await query
+                .Include(a => a.Tags)
                 .Skip(request.Offset)
                 .Take(request.Limit)
                 .ToListAsync();

@@ -6,18 +6,22 @@ using WomensWiki.Contracts;
 namespace WomensWiki.Features.Articles;
 
 public static class GetArticleBySlug {
-    public record GetArticleBySlugRequest(string Slug) : IRequest<ArticleResponse>;
-       internal sealed class GetArticleBySlugHandler(AppDbContext dbContext) : IRequestHandler<GetArticleBySlugRequest, ArticleResponse> {
-        public async Task<ArticleResponse> Handle(GetArticleBySlugRequest request, CancellationToken cancellationToken) {
+    public record GetArticleBySlugRequest(string Slug) : IRequest<Result<ArticleResponse>>;
+       internal sealed class GetArticleBySlugHandler(AppDbContext dbContext) : IRequestHandler<GetArticleBySlugRequest, Result<ArticleResponse>> {
+        public async Task<Result<ArticleResponse>> Handle(GetArticleBySlugRequest request, CancellationToken cancellationToken) {
             var article = await dbContext.Articles.Include(a => a.Tags).FirstOrDefaultAsync(a => a.Slug == request.Slug);
+
+            if (article == null) {
+                return Result.Failure<ArticleResponse>(new List<Error> { new Error("ArticleId", "Article not found")});
+            }
             
-            return ArticleResponse.FromArticle(article);
+            return Result.Success(ArticleResponse.FromArticle(article));
         }
     }
 
     [QueryType]
     public class GetArticleBySlugQuery {
-        public async Task<ArticleResponse> GetArticleBySlugAsync([Service] ISender sender, string slug) {
+        public async Task<Result<ArticleResponse>> GetArticleBySlugAsync([Service] ISender sender, string slug) {
             return await sender.Send(new GetArticleBySlugRequest(slug));
         }
     }
