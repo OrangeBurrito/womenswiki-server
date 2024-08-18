@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using WomensWiki.Common;
 using FluentValidation;
+using HotChocolate.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,6 @@ if (app.Environment.IsDevelopment()) {
     app.UseCors("Localhost");
 }
 
-// app.MapGraphQL();
+app.MapGraphQL().WithOptions(new GraphQLServerOptions(){ Tool = { Enable = builder.Environment.IsDevelopment() }});
 
 app.Run();
