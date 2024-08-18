@@ -19,6 +19,6 @@ if (app.Environment.IsDevelopment()) {
     app.UseCors("Localhost");
 }
 
-app.MapGraphQL();
+// app.MapGraphQL();
 
 app.Run();
