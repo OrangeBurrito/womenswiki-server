@@ -20,6 +20,6 @@ if (app.Environment.IsDevelopment()) {
     app.UseCors("Localhost");
 }
 
-app.MapGraphQL().WithOptions(new GraphQLServerOptions(){ Tool = { Enable = builder.Environment.IsDevelopment() }});
+app.MapGraphQL();
 
 app.Run();
