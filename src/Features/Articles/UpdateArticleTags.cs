@@ -35,6 +35,11 @@ public static class UpdateArticleTags {
             }
 
             article.UpdateTags(tags);
+            foreach (var tag in tags) {
+                if (!tag.Articles.Contains(article)) {
+                    tag.AddArticle(article, tag);
+                }
+            }
             await dbContext.SaveChangesAsync();
 
             return Result.Success(ArticleResponse.FromArticle(article));

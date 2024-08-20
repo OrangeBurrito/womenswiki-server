@@ -24,6 +24,7 @@ public static class CreateArticle {
         public async Task<Result<CreateArticleResponse>> Handle(CreateArticleCommand request, CancellationToken cancellationToken) {
             var author = await dbContext.Users.SingleAsync(u => u.Username == request.Author);
             var tags = await dbContext.Tags.Where(t => request.Tags.Contains(t.Name)).ToListAsync();
+
             var duplicateArticle = await dbContext.Articles.FirstOrDefaultAsync(a => a.Title == request.Title && a.Slug == Article.GenerateSlug(request.Title));
 
             var context = new ValidationContext<CreateArticleCommand>(request);
@@ -37,6 +38,9 @@ public static class CreateArticle {
             var article = Article.Create(request.Title, request.Content);
             if (tags.Any()) {
                 article.UpdateTags(tags);
+                foreach (var tag in tags) {
+                    tag.AddArticle(article, tag);
+                }
             }
             await dbContext.Articles.AddAsync(article);
             await dbContext.SaveChangesAsync();

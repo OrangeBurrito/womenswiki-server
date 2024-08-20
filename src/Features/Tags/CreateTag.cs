@@ -3,14 +3,13 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using WomensWiki.Common;
 using WomensWiki.Contracts;
-using WomensWiki.Domain.Articles;
 using WomensWiki.Domain.Tags;
 using Tag = WomensWiki.Domain.Tags.Tag;
 
 namespace WomensWiki.Features.Tags;
 
 public static class CreateTag {
-    public record CreateTagCommand(string Name) : IRequest<Result<TagResponse>>;
+    public record CreateTagCommand(string Name, string? ParentTag = null) : IRequest<Result<TagResponse>>;
 
     public class CreateTagValidator : AbstractValidator<CreateTagCommand> {
         public CreateTagValidator() {
@@ -31,11 +30,13 @@ public static class CreateTag {
                 return Result.Failure<TagResponse>(ErrorMapper.Map(validationResult));
             }
 
-            var tag = Tag.Create(request.Name);
+            var parentTag = await dbContext.Tags.FirstOrDefaultAsync(t => t.Name == request.ParentTag);
+            // todo: validate if parenttag exists first
+            var tag = Tag.Create(request.Name, parentTag);
             await dbContext.Tags.AddAsync(tag);
             await dbContext.SaveChangesAsync();
 
-            return Result.Success(new TagResponse(tag.Id, tag.CreatedAt, tag.Name));
+            return Result.Success(TagResponse.FromTag(tag));
         }
     }
 

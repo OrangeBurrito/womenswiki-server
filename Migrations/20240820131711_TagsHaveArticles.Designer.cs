@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WomensWiki.Common;
 
@@ -11,9 +12,11 @@ using WomensWiki.Common;
 namespace WomensWiki.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240820131711_TagsHaveArticles")]
+    partial class TagsHaveArticles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -109,12 +112,12 @@ namespace WomensWiki.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("TagId")
+                    b.Property<Guid?>("ParentTagId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TagId");
+                    b.HasIndex("ParentTagId");
 
                     b.ToTable("Tags");
                 });
@@ -177,19 +180,16 @@ namespace WomensWiki.Migrations
 
             modelBuilder.Entity("WomensWiki.Domain.Tags.Tag", b =>
                 {
-                    b.HasOne("WomensWiki.Domain.Tags.Tag", null)
-                        .WithMany("ParentTags")
-                        .HasForeignKey("TagId");
+                    b.HasOne("WomensWiki.Domain.Tags.Tag", "ParentTag")
+                        .WithMany()
+                        .HasForeignKey("ParentTagId");
+
+                    b.Navigation("ParentTag");
                 });
 
             modelBuilder.Entity("WomensWiki.Domain.Articles.Article", b =>
                 {
                     b.Navigation("History");
-                });
-
-            modelBuilder.Entity("WomensWiki.Domain.Tags.Tag", b =>
-                {
-                    b.Navigation("ParentTags");
                 });
 #pragma warning restore 612, 618
         }

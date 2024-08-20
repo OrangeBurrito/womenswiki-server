@@ -11,22 +11,13 @@ public static class GetArticlesByTag {
 
     internal sealed class GetArticlesByTagHandler(AppDbContext dbContext) : IRequestHandler<GetArticlesByTagRequest, Result<List<ArticleResponse>>> {
         public async Task<Result<List<ArticleResponse>>> Handle(GetArticlesByTagRequest request, CancellationToken cancellationToken) {
-            var tag = await dbContext.Tags.FirstOrDefaultAsync(t => t.Name == request.Tag);
+            var tag = await dbContext.Tags.Include(a => a.Articles).FirstOrDefaultAsync(t => t.Name == request.Tag);
 
             if (tag == null) {
                 return Result.Failure<List<ArticleResponse>>(new List<Error> { new Error("Tag", "Tag not found")});
             }
 
-            var query = request.Descending ?
-                dbContext.Articles.OrderByDescending(a => a.CreatedAt) :
-                dbContext.Articles.OrderBy(a => a.CreatedAt);
-
-            var articles = await query
-                .Include(a => a.Tags)
-                .Where(a => a.Tags.Contains(tag))
-                .Skip(request.Offset)
-                .Take(request.Limit)
-                .ToListAsync();
+            var articles = tag.Articles.Skip(request.Offset).Take(request.Limit).ToList();
 
             return Result.Success(articles.Select(ArticleResponse.FromArticle).ToList());
         }

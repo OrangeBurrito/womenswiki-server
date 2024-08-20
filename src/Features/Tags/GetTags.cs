@@ -20,7 +20,7 @@ public static class GetTags {
                 .Take(request.Limit)
                 .ToListAsync();
 
-            return Result.Success(tags.Select(t => new TagResponse(t.Id, t.CreatedAt, t.Name)).ToList());
+            return Result.Success(tags.Select(tag => TagResponse.FromTag(tag)).ToList());
         }
     }
 
