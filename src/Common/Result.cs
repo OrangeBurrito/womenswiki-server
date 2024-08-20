@@ -22,9 +22,4 @@ public class Result<T> {
 
     public static Result<T> Success(T data) => new(true, data, null);
     public static Result<T> Failure(List<Error> errors) => new(false, default, errors);
-
-    internal Result<List<TagResponse>> ToList()
-    {
-        throw new NotImplementedException();
-    }
 }

@@ -16,6 +16,7 @@ public static class GetTags {
                 // todo: sort alphabetically
 
             var tags = await query
+                .Include(t => t.Articles)
                 .Skip(request.Offset)
                 .Take(request.Limit)
                 .ToListAsync();

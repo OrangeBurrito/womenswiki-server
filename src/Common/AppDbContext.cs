@@ -30,5 +30,8 @@ public class AppDbContext : DbContext {
             .WithMany(a => a.History)
             .HasForeignKey(r => r.ArticleId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Tag>()
+            .HasMany(t => t.ParentTags).WithMany();
     }
 }

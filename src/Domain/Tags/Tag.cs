@@ -4,15 +4,9 @@ namespace WomensWiki.Domain.Tags;
 
 public class Tag : Entity {
     public string Name { get; private set; } = null!;
-    public List<Tag>? ParentTags { get; private set; } = new();
+    public List<Tag> ParentTags { get; private set; } = new();
     public List<Article> Articles { get; private set; } = new();
 
-    public static Tag Create(string name, List<Tag>? parentTags = null) {
-        return new Tag {
-            Name = name,
-            ParentTags = parentTags,
-        };
-    }
     public static Tag Create(string name, Tag? parentTag = null) {
         return new Tag {
             Name = name,

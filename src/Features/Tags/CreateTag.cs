@@ -31,7 +31,6 @@ public static class CreateTag {
             }
 
             var parentTag = await dbContext.Tags.FirstOrDefaultAsync(t => t.Name == request.ParentTag);
-            // todo: validate if parenttag exists first
             var tag = Tag.Create(request.Name, parentTag);
             await dbContext.Tags.AddAsync(tag);
             await dbContext.SaveChangesAsync();

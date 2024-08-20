@@ -34,12 +34,12 @@ public static class UpdateArticleTags {
                 return Result.Failure<ArticleResponse>(ErrorMapper.Map(validationResult));
             }
 
-            article.UpdateTags(tags);
             foreach (var tag in tags) {
                 if (!tag.Articles.Contains(article)) {
                     tag.AddArticle(article, tag);
                 }
             }
+            article.UpdateTags(tags);
             await dbContext.SaveChangesAsync();
 
             return Result.Success(ArticleResponse.FromArticle(article));
