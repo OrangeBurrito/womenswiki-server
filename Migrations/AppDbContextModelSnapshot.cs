@@ -49,7 +49,7 @@ namespace WomensWiki.Migrations
 
                     b.HasIndex("TagId");
 
-                    b.ToTable("TagTag");
+                    b.ToTable("ChildTags", (string)null);
                 });
 
             modelBuilder.Entity("WomensWiki.Domain.Articles.Article", b =>

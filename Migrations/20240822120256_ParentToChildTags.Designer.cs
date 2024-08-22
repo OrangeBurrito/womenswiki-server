@@ -12,8 +12,8 @@ using WomensWiki.Common;
 namespace WomensWiki.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240820181026_ParentTagMany")]
-    partial class ParentTagMany
+    [Migration("20240822120256_ParentToChildTags")]
+    partial class ParentToChildTags
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -52,7 +52,7 @@ namespace WomensWiki.Migrations
 
                     b.HasIndex("TagId");
 
-                    b.ToTable("TagTag");
+                    b.ToTable("ChildTags", (string)null);
                 });
 
             modelBuilder.Entity("WomensWiki.Domain.Articles.Article", b =>

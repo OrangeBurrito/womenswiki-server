@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace WomensWiki.Migrations
 {
     /// <inheritdoc />
-    public partial class ParentTagMany : Migration
+    public partial class ParentToChildTags : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -24,7 +24,7 @@ namespace WomensWiki.Migrations
                 table: "Tags");
 
             migrationBuilder.CreateTable(
-                name: "TagTag",
+                name: "ChildTags",
                 columns: table => new
                 {
                     ParentTagsId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -32,23 +32,23 @@ namespace WomensWiki.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TagTag", x => new { x.ParentTagsId, x.TagId });
+                    table.PrimaryKey("PK_ChildTags", x => new { x.ParentTagsId, x.TagId });
                     table.ForeignKey(
-                        name: "FK_TagTag_Tags_ParentTagsId",
+                        name: "FK_ChildTags_Tags_ParentTagsId",
                         column: x => x.ParentTagsId,
                         principalTable: "Tags",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_TagTag_Tags_TagId",
+                        name: "FK_ChildTags_Tags_TagId",
                         column: x => x.TagId,
                         principalTable: "Tags",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_TagTag_TagId",
-                table: "TagTag",
+                name: "IX_ChildTags_TagId",
+                table: "ChildTags",
                 column: "TagId");
         }
 
@@ -56,7 +56,7 @@ namespace WomensWiki.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "TagTag");
+                name: "ChildTags");
 
             migrationBuilder.AddColumn<Guid>(
                 name: "TagId",
