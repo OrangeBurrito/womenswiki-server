@@ -1,27 +1,17 @@
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using WomensWiki.Common;
 using WomensWiki.Contracts;
+using WomensWiki.Features.Tags.Persistence;
 
 namespace WomensWiki.Features.Tags;
 
 public static class GetTags {
     public record GetTagsRequest(int Limit = 30, int Offset = 0, bool Descending = false) : IRequest<Result<List<TagResponse>>>;
 
-    internal sealed class GetTagsHandler(AppDbContext dbContext) : IRequestHandler<GetTagsRequest, Result<List<TagResponse>>> {
+    internal sealed class GetTagsHandler(TagRepository repository) : IRequestHandler<GetTagsRequest, Result<List<TagResponse>>> {
         public async Task<Result<List<TagResponse>>> Handle(GetTagsRequest request, CancellationToken cancellationToken) {
-            var query = request.Descending ?
-                dbContext.Tags.OrderByDescending(t => t.CreatedAt) :
-                dbContext.Tags.OrderBy(t => t.CreatedAt);
-                // todo: sort alphabetically
+            var tags = await repository.GetTags(request.Limit, request.Offset, request.Descending);
 
-            var tags = await query
-                .Include(t => t.Articles)
-                .Skip(request.Offset)
-                .Take(request.Limit)
-                .ToListAsync();
-
-            return Result.Success(tags.Select(tag => TagResponse.FromTag(tag)).ToList());
+            return Result.Success(tags.Select(TagResponse.FromTag).ToList());
         }
     }
 

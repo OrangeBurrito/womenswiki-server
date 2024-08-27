@@ -1,33 +1,32 @@
-using System.Linq;
+using FluentValidation;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using WomensWiki.Common;
+using WomensWiki.Common.Validation;
 using WomensWiki.Contracts;
+using WomensWiki.Domain.Tags;
+using WomensWiki.Features.Tags.Persistence;
 
 namespace WomensWiki.Features.Tags;
 
 public static class GetSubtags {
     public record GetSubtagsRequest(string Tag, int Limit = 30, int Offset = 0, bool Descending = false) : IRequest<Result<List<TagResponse>>>;
 
-    internal sealed class GetSubtagsHandler(AppDbContext dbContext) : IRequestHandler<GetSubtagsRequest, Result<List<TagResponse>>> {
+    public class GetSubtagsValidator : AbstractValidator<GetSubtagsRequest> {
+        public GetSubtagsValidator() {
+            RuleFor(x => x.Tag).TagExists();
+        }
+    }
+
+    internal sealed class GetSubtagsHandler(TagRepository tagRepository, GetSubtagsValidator validator) : IRequestHandler<GetSubtagsRequest, Result<List<TagResponse>>> {
         public async Task<Result<List<TagResponse>>> Handle(GetSubtagsRequest request, CancellationToken cancellationToken) {
-            var tag = await dbContext.Tags.Include(t => t.ParentTags).FirstOrDefaultAsync(t => t.Name == request.Tag);
+            var tag = await tagRepository.GetFullTag(request.Tag);
 
-            var query = request.Descending ?
-                dbContext.Tags.OrderByDescending(t => t.CreatedAt) :
-                dbContext.Tags.OrderBy(t => t.CreatedAt);
+            var validationResult = validator.Validate(Validation.Context(request, ("Tag", tag)));
+            if (!validationResult.IsValid) {
+                return Result.Failure<List<TagResponse>>(ErrorMapper.Map(validationResult));
+            }
 
-
-            // todo: validate if tag exists
-            var tags = await query
-                .Where(t => t.ParentTags.Any(pt => pt.Name == tag.Name))
-                .Skip(request.Offset)
-                .Take(request.Limit)
-                .ToListAsync();
-
-            Console.WriteLine(tags);
-            
-            return Result.Success(tags.Select(tag => TagResponse.FromTag(tag)).ToList());
+            var tags = await tagRepository.GetSubtags(tag, request.Limit, request.Offset, request.Descending);
+            return Result.Success(tags.Select(TagResponse.FromTag).ToList());
         }
     }
 

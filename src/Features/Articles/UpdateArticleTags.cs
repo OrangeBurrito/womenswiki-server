@@ -15,7 +15,7 @@ public static class UpdateArticleTags {
         public UpdateArticleTagsValidator() {
             RuleFor(x => x.ArticleId).ArticleExists();
             RuleFor(x => x.Author).NotEmpty();
-            RuleFor(x => x.Tags).NotEmpty().TagsExist();
+            RuleForEach(x => x.Tags).TagExists();
         }
     }
 

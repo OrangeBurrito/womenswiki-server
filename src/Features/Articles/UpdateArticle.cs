@@ -2,8 +2,11 @@ using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using WomensWiki.Common;
+using WomensWiki.Common.Validation;
 using WomensWiki.Contracts;
 using WomensWiki.Domain.Articles;
+using WomensWiki.Features.Articles.Persistence;
+using WomensWiki.Features.Users.Persistence;
 
 namespace WomensWiki.Features;
 
@@ -18,23 +21,18 @@ public static class UpdateArticle {
         }
     }
 
-    internal sealed class UpdateArticleHandler(AppDbContext dbContext, UpdateArticleValidator validator)
+    internal sealed class UpdateArticleHandler(ArticleRepository articleRepository, UserRepository userRepository, UpdateArticleValidator validator)
         : IRequestHandler<UpdateArticleCommand, Result<ArticleResponse>> {
         public async Task<Result<ArticleResponse>> Handle(UpdateArticleCommand request, CancellationToken cancellationToken) {
-            var article = await dbContext.Articles.Include(a => a.History).SingleAsync(a => a.Id == request.ArticleId);
-            var author = await dbContext.Users.SingleAsync(u => u.Username == request.Author);
+            var article = await articleRepository.GetArticleById(request.ArticleId);
+            var author = await userRepository.GetUserByUsername(request.Author);
 
-            var context = new ValidationContext<UpdateArticleCommand>(request);
-            context.RootContextData["Article"] = article;
-            var validationResult = await validator.ValidateAsync(context);
-
+            var validationResult = await validator.ValidateAsync(Validation.Context(request, ("Article", article)));
             if (!validationResult.IsValid) {
                 return Result.Failure<ArticleResponse>(ErrorMapper.Map(validationResult));
             }
 
-            article.Update(author, request.Content, request.Summary);
-            await dbContext.SaveChangesAsync();
-
+            await articleRepository.UpdateArticle(article, author, request.Content, request.Summary);
             return Result.Success(ArticleResponse.FromArticle(article));
         }
     }

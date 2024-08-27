@@ -3,22 +3,22 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using WomensWiki.Common;
 using WomensWiki.Contracts;
+using WomensWiki.Features.Articles.Persistence;
+using WomensWiki.Features.Tags.Persistence;
 
 namespace WomensWiki.Features.Articles;
 
 public static class GetArticlesByTag {
     public record GetArticlesByTagRequest(string Tag, int Limit = 10, int Offset = 0, bool Descending = false) : IRequest<Result<List<ArticleResponse>>>;
 
-    internal sealed class GetArticlesByTagHandler(AppDbContext dbContext) : IRequestHandler<GetArticlesByTagRequest, Result<List<ArticleResponse>>> {
+    internal sealed class GetArticlesByTagHandler(ArticleRepository articleRepository, TagRepository tagRepository) : IRequestHandler<GetArticlesByTagRequest, Result<List<ArticleResponse>>> {
         public async Task<Result<List<ArticleResponse>>> Handle(GetArticlesByTagRequest request, CancellationToken cancellationToken) {
-            var tag = await dbContext.Tags.Include(a => a.Articles).FirstOrDefaultAsync(t => t.Name == request.Tag);
-
+            var tag = await tagRepository.GetFullTag(request.Tag);
             if (tag == null) {
                 return Result.Failure<List<ArticleResponse>>(new List<Error> { new Error("Tag", "Tag not found")});
             }
 
-            var articles = tag.Articles.Skip(request.Offset).Take(request.Limit).ToList();
-
+            var articles = await articleRepository.GetArticlesByTag(tag, request.Descending, request.Limit, request.Offset);
             return Result.Success(articles.Select(ArticleResponse.FromArticle).ToList());
         }
     }

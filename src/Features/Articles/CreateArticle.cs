@@ -2,8 +2,12 @@ using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using WomensWiki.Common;
+using WomensWiki.Common.Validation;
 using WomensWiki.Contracts;
 using WomensWiki.Domain.Articles;
+using WomensWiki.Domain.Tags;
+using WomensWiki.Features.Articles.Persistence;
+using WomensWiki.Features.Tags.Persistence;
 
 namespace WomensWiki.Features.Articles;
 
@@ -15,37 +19,28 @@ public static class CreateArticle {
             RuleFor(x => x.Author).NotEmpty();
             RuleFor(x => x.Title).NotEmpty().UniqueTitle().MinimumLength(3);
             RuleFor(x => x.Content).NotEmpty().MinimumLength(25);
-            RuleFor(x => x.Tags).NotEmpty();
+            When(x => x.Tags != null, () => {
+                RuleFor(x => x.Tags).TagsExist();
+            });
         }
     }
 
-    internal sealed class CreateArticleHandler(AppDbContext dbContext, CreateArticleValidator validator)
+    internal sealed class CreateArticleHandler(ArticleRepository articleRepository, TagRepository tagRepository, CreateArticleValidator validator)
         : IRequestHandler<CreateArticleCommand, Result<CreateArticleResponse>> {
         public async Task<Result<CreateArticleResponse>> Handle(CreateArticleCommand request, CancellationToken cancellationToken) {
-            var author = await dbContext.Users.SingleAsync(u => u.Username == request.Author);
-            var tags = await dbContext.Tags.Where(t => request.Tags.Contains(t.Name)).ToListAsync();
+            var tags = await tagRepository.GetMatchingTags(request.Tags);
+            var duplicateArticle = await articleRepository.GetDuplicateArticle(request.Title);
 
-            var duplicateArticle = await dbContext.Articles.FirstOrDefaultAsync(a => a.Title == request.Title && a.Slug == Article.GenerateSlug(request.Title));
-
-            var context = new ValidationContext<CreateArticleCommand>(request);
-            context.RootContextData["Article"] = duplicateArticle;
-            var validationResult = await validator.ValidateAsync(context);
-
+            var validationResult = await validator.ValidateAsync(
+                Validation.Context(request, ("Article", duplicateArticle), ("Tags", tags))
+            );
             if (!validationResult.IsValid) {
                 return Result.Failure<CreateArticleResponse>(ErrorMapper.Map(validationResult));
             }
 
-            var article = Article.Create(request.Title, request.Content);
-            if (tags.Any()) {
-                article.UpdateTags(tags);
-                foreach (var tag in tags) {
-                    tag.AddArticle(article, tag);
-                }
-            }
-            await dbContext.Articles.AddAsync(article);
-            await dbContext.SaveChangesAsync();
+            var article = await articleRepository.CreateArticle(request.Title, request.Content, tags);
 
-            return Result.Success(new CreateArticleResponse(article.Id, article.CreatedAt, article.Title, article.Content, article.Slug));
+            return Result.Success(new CreateArticleResponse(article.Id, article.CreatedAt, article.Title, article.Content, article.Slug, article.Tags));
         }
     }
 

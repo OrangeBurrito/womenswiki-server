@@ -27,14 +27,29 @@ public static class TagValidators {
         });
     }
 
+    public static IRuleBuilderOptions<T, string> TagExists<T>(this IRuleBuilder<T, string> ruleBuilder) {
+        return (IRuleBuilderOptions<T, string>)ruleBuilder.Custom((value, context) => {
+            if (context.RootContextData["Tag"] != null || context.RootContextData["ParentTag"] != null) {
+                var tag = (Tag)context.RootContextData["Tag"] ?? (Tag)context.RootContextData["ParentTag"];
+                if (tag.Name != value) {
+                    var failure = new ValidationFailure("ParentTag", $"Tag does not exist: {value}");
+                    failure.ErrorCode = "TagDoesNotExist";
+                    context.AddFailure(failure);
+                }
+            }
+        });
+    }
+
     public static IRuleBuilderOptions<T, List<string>> TagsExist<T>(this IRuleBuilder<T, List<string>> ruleBuilder) {
         return (IRuleBuilderOptions<T, List<string>>)ruleBuilder.Custom((value, context) => {
             if (context.RootContextData["Tags"] != null) {
                 var tags = (List<Tag>)context.RootContextData["Tags"];
-                if (value.Count != tags.Count) {
-                    var failure = new ValidationFailure("Tags", $"Tags do not exist: {string.Join(", ", value)}");
-                    failure.ErrorCode = "TagsDoNotExist";
-                    context.AddFailure(failure);
+                foreach (var tag in value) {
+                    if (!tags.Any(t => t.Name == tag)) {
+                        var failure = new ValidationFailure("Tags", $"Tag does not exist: {tag}");
+                        failure.ErrorCode = "TagDoesNotExist";
+                        context.AddFailure(failure);
+                    }
                 }
             }
         });

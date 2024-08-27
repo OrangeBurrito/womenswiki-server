@@ -1,8 +1,9 @@
 using FluentValidation;
 using MediatR;
-using WomensWiki.Common;
+using WomensWiki.Common.Validation;
 using WomensWiki.Contracts;
 using WomensWiki.Domain.Articles;
+using WomensWiki.Features.Articles.Persistence;
 
 namespace WomensWiki.Features.Articles;
 
@@ -15,14 +16,14 @@ public static class GetArticleById {
         }
     }
 
-    internal sealed class GetArticleByIdHandler(AppDbContext dbContext, GetArticleByIdValidator validator)
+    internal sealed class GetArticleByIdHandler(ArticleRepository repository, GetArticleByIdValidator validator)
         : IRequestHandler<GetArticleByIdRequest, Result<ArticleResponse>> {
         public async Task<Result<ArticleResponse>> Handle(GetArticleByIdRequest request, CancellationToken cancellationToken) {
-            var article = await dbContext.Articles.FindAsync(request.Id);
+            var article = await repository.GetArticleById(request.Id);
 
-            var context = new ValidationContext<GetArticleByIdRequest>(request);
-            context.RootContextData["Article"] = article;
-            var validationResult = await validator.ValidateAsync(context);
+            var validationResult = await validator.ValidateAsync(
+                Validation.Context(request, ("Article", article))
+            );
 
             if (!validationResult.IsValid) {
                 return Result.Failure<ArticleResponse>(ErrorMapper.Map(validationResult));

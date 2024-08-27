@@ -1,30 +1,33 @@
+using FluentValidation;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using WomensWiki.Common;
+using WomensWiki.Common.Validation;
 using WomensWiki.Contracts;
-using Tag = WomensWiki.Domain.Tags.Tag;
+using WomensWiki.Domain.Tags;
+using WomensWiki.Features.Tags.Persistence;
 
 namespace WomensWiki.Features.Tags;
 
 public static class UpdateTag {
-    public record UpdateTagRequest(Guid Id, string parentTag) : IRequest<Result<TagResponse>>;
+    public record UpdateTagRequest(string tag, string parentTag) : IRequest<Result<TagResponse>>;
 
-    internal sealed class UpdateTagHandler(AppDbContext dbContext) : IRequestHandler<UpdateTagRequest, Result<TagResponse>> {
+    public class UpdateTagValidator : AbstractValidator<UpdateTagRequest> {
+        public UpdateTagValidator() {
+            RuleFor(x => x.tag).TagExists();
+            RuleFor(x => x.parentTag).TagExists();
+        }
+    }
+
+    internal sealed class UpdateTagHandler(TagRepository repository, UpdateTagValidator validator) : IRequestHandler<UpdateTagRequest, Result<TagResponse>> {
         public async Task<Result<TagResponse>> Handle(UpdateTagRequest request, CancellationToken cancellationToken) {
-            var tag = await dbContext.Tags
-                .Include(t => t.ParentTags)
-                .Include(t => t.Articles)
-                .FirstOrDefaultAsync(t => t.Id == request.Id);
-
-            var parentTag = await dbContext.Tags.FirstOrDefaultAsync(t => t.Name == request.parentTag);
+            var tag = await repository.GetFullTag(request.tag);
+            var parentTag = await repository.GetTag(request.parentTag);
             
-            if (tag is null) {
-                return Result.Failure<TagResponse>(new List<Error>{});
+            var validationResult = validator.Validate(Validation.Context(request, ("Tag", tag), ("ParentTag", parentTag)));
+            if (!validationResult.IsValid) {
+                return Result.Failure<TagResponse>(ErrorMapper.Map(validationResult));
             }
 
-            tag.Update(parentTag);
-            await dbContext.SaveChangesAsync(cancellationToken);
-
+            await repository.UpdateTag(tag, parentTag);
             return Result.Success(TagResponse.FromTag(tag));
         }
     }
