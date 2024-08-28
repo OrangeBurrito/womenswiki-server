@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FluentValidation;
 using MediatR;
 using WomensWiki.Common.Validation;
@@ -8,7 +9,7 @@ using WomensWiki.Features.Tags.Persistence;
 namespace WomensWiki.Features.Tags;
 
 public static class GetNestedSubtags {
-    public record GetNestedSubtagsRequest(string Tag) : IRequest<Result<List<TagResponse>>>;
+    public record GetNestedSubtagsRequest(string Tag) : IRequest<Result<TagTree>>;
 
     public class GetNestedSubtagsValidator : AbstractValidator<GetNestedSubtagsRequest> {
         public GetNestedSubtagsValidator() {
@@ -16,24 +17,24 @@ public static class GetNestedSubtags {
         }
     }
 
-    internal sealed class GetNestedSubtagsHandler(TagRepository tagRepository, GetNestedSubtagsValidator validator) : IRequestHandler<GetNestedSubtagsRequest, Result<List<TagResponse>>> {
-        public async Task<Result<List<TagResponse>>> Handle(GetNestedSubtagsRequest request, CancellationToken cancellationToken) {
+    internal sealed class GetNestedSubtagsHandler(TagRepository tagRepository, GetNestedSubtagsValidator validator) : IRequestHandler<GetNestedSubtagsRequest, Result<TagTree>> {
+        public async Task<Result<TagTree>> Handle(GetNestedSubtagsRequest request, CancellationToken cancellationToken) {
             var tag = await tagRepository.GetFullTag(request.Tag);
 
             var validationResult = validator.Validate(Validation.Context(request, ("Tag", tag)));
             if (!validationResult.IsValid) {
-                return Result.Failure<List<TagResponse>>(ErrorMapper.Map(validationResult));
+                return Result.Failure<TagTree>(ErrorMapper.Map(validationResult));
             }
 
             var tags = await tagRepository.GetNestedSubtags(tag);
-            return Result.Success(tags.Select(TagResponse.FromTag).ToList());
+            return Result.Success(tags);
         }
     }
 
     [QueryType]
     public class GetNestedSubtagsQuery {
         [UseSorting]
-        public async Task<Result<List<TagResponse>>> GetNestedSubtags([Service] ISender sender, GetNestedSubtagsRequest input) {
+        public async Task<Result<TagTree>> GetNestedSubtags([Service] ISender sender, GetNestedSubtagsRequest input) {
             return await sender.Send(input);
         }
     }

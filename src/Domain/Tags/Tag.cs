@@ -22,3 +22,17 @@ public class Tag : Entity {
         tag.Articles.Add(article);
     }
 }
+
+// tagtree
+public class TagTree {
+    public Tag Tag { get; private set; } = null!;
+    public List<TagTree> Subtags { get; private set; } = new();
+
+    public TagTree(Tag tag) {
+        Tag = tag;
+    }
+
+    public void AddSubtags(TagTree subtags) {
+        Subtags.Add(subtags);
+    }
+}

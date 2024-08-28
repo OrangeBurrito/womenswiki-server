@@ -54,4 +54,14 @@ public static class TagValidators {
             }
         });
     }
+
+    public static IRuleBuilderOptions<T, string> NotChildOfTag<T>(this IRuleBuilder<T, string> ruleBuilder) {
+        return (IRuleBuilderOptions<T, string>)ruleBuilder.Custom((value, context) => {
+            if (context.RootContextData["ParentIsChild"] == null) {
+                var failure = new ValidationFailure("ParentTag", $"Parent tag cannot be a nested child of the tag");
+                failure.ErrorCode = "ParentTagIsChild";
+                context.AddFailure(failure);
+            }
+        });
+    }
 }

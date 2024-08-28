@@ -11,7 +11,10 @@ public class Result<T> {
     public bool IsSuccess { get; private set; }
     public bool IsFailure => !IsSuccess;
 
+    // serialize
+    
     public T? Data { get; private set; }
+    
     public List<Error>? Errors { get; private set; }
 
     private Result(bool isSuccess, T? data, List<Error>? errors = null) {

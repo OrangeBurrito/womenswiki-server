@@ -17,16 +17,16 @@ public static class CreateTag {
         public CreateTagValidator() {
             RuleFor(x => x.Name).NotEmpty().UniqueName().NoSpaces().MinimumLength(3);
             When(x => x.ParentTag != null, () => {
-                RuleFor(x => x.ParentTag).TagExists();
+                RuleFor(x => x.ParentTag).TagExists("ParentTag");
             });
         }
     }
 
-    internal sealed class CreateTagHandler(TagRepository repository, CreateTagValidator validator)
+    internal sealed class CreateTagHandler(TagRepository tagRepository, CreateTagValidator validator)
         : IRequestHandler<CreateTagCommand, Result<TagResponse>> {
         public async Task<Result<TagResponse>> Handle(CreateTagCommand request, CancellationToken cancellationToken) {
-            var duplicateTag = await repository.GetTag(request.Name);
-            var parentTag = await repository.GetTag(request.Name);
+            var duplicateTag = await tagRepository.GetTag(request.Name);
+            var parentTag = await tagRepository.GetTag(request.ParentTag);
 
             var validationResult = await validator.ValidateAsync(
                 Validation.Context(request,
@@ -37,7 +37,7 @@ public static class CreateTag {
                 return Result.Failure<TagResponse>(ErrorMapper.Map(validationResult));
             }
 
-            var tag = await repository.CreateTag(request.Name, parentTag);
+            var tag = await tagRepository.CreateTag(request.Name, parentTag);
             return Result.Success(TagResponse.FromTag(tag));
         }
     }

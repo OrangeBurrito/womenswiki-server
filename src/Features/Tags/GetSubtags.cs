@@ -24,8 +24,9 @@ public static class GetSubtags {
             if (!validationResult.IsValid) {
                 return Result.Failure<List<TagResponse>>(ErrorMapper.Map(validationResult));
             }
-
-            var tags = await tagRepository.GetSubtags(tag, request.Limit, request.Offset, request.Descending);
+            var sortedTags = tagRepository.SortTags(request.Limit, request.Offset, request.Descending);
+            var tags = await tagRepository.GetSubtags(sortedTags, tag!);
+            
             return Result.Success(tags.Select(TagResponse.FromTag).ToList());
         }
     }
