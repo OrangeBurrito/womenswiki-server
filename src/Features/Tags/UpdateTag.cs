@@ -13,7 +13,7 @@ public static class UpdateTag {
     public class UpdateTagValidator : AbstractValidator<UpdateTagRequest> {
         public UpdateTagValidator() {
             RuleFor(x => x.tag).TagExists();
-            RuleFor(x => x.parentTag).TagExists();
+            RuleFor(x => x.parentTag).TagExists("ParentTag");
         }
     }
 

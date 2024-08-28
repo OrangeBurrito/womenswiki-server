@@ -27,12 +27,12 @@ public static class TagValidators {
         });
     }
 
-    public static IRuleBuilderOptions<T, string> TagExists<T>(this IRuleBuilder<T, string> ruleBuilder) {
+    public static IRuleBuilderOptions<T, string> TagExists<T>(this IRuleBuilder<T, string> ruleBuilder, string? property = "Tag") {
         return (IRuleBuilderOptions<T, string>)ruleBuilder.Custom((value, context) => {
-            if (context.RootContextData["Tag"] != null || context.RootContextData["ParentTag"] != null) {
-                var tag = (Tag)context.RootContextData["Tag"] ?? (Tag)context.RootContextData["ParentTag"];
+            if (context.RootContextData[property] != null) {
+                var tag = (Tag)context.RootContextData[property];
                 if (tag.Name != value) {
-                    var failure = new ValidationFailure("ParentTag", $"Tag does not exist: {value}");
+                    var failure = new ValidationFailure("Tag", $"Tag does not exist: {value}");
                     failure.ErrorCode = "TagDoesNotExist";
                     context.AddFailure(failure);
                 }

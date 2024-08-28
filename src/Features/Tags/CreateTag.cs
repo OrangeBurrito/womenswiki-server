@@ -6,6 +6,7 @@ using WomensWiki.Contracts;
 using WomensWiki.Domain.Tags;
 using Tag = WomensWiki.Domain.Tags.Tag;
 using WomensWiki.Common.Validation;
+using WomensWiki.Features.Tags.Persistence;
 
 namespace WomensWiki.Features.Tags;
 
@@ -21,26 +22,22 @@ public static class CreateTag {
         }
     }
 
-    internal sealed class CreateTagHandler(AppDbContext dbContext, CreateTagValidator validator)
+    internal sealed class CreateTagHandler(TagRepository repository, CreateTagValidator validator)
         : IRequestHandler<CreateTagCommand, Result<TagResponse>> {
         public async Task<Result<TagResponse>> Handle(CreateTagCommand request, CancellationToken cancellationToken) {
-            var duplicateTag = await dbContext.Tags.FirstOrDefaultAsync(t => t.Name == request.Name);
-            var parentTag = await dbContext.Tags.FirstOrDefaultAsync(t => t.Name == request.ParentTag);
+            var duplicateTag = await repository.GetTag(request.Name);
+            var parentTag = await repository.GetTag(request.Name);
 
             var validationResult = await validator.ValidateAsync(
                 Validation.Context(request,
                 ("Tag", duplicateTag),
                 ("ParentTag", parentTag))
             );
-
             if (!validationResult.IsValid) {
                 return Result.Failure<TagResponse>(ErrorMapper.Map(validationResult));
             }
 
-            var tag = Tag.Create(request.Name, parentTag);
-            await dbContext.Tags.AddAsync(tag);
-            await dbContext.SaveChangesAsync();
-
+            var tag = await repository.CreateTag(request.Name, parentTag);
             return Result.Success(TagResponse.FromTag(tag));
         }
     }

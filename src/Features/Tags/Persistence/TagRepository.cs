@@ -38,8 +38,28 @@ public class TagRepository(AppDbContext dbContext) : IRepository {
             .ToListAsync();
     }
 
+    public async Task<List<Tag>> GetNestedSubtags(Tag tag) {
+        var subtags = new List<Tag>();
+        var directSubtags = await GetSubtags(tag, int.MaxValue, 0, false);
+        subtags.AddRange(directSubtags);
+
+        foreach (var subtag in directSubtags) {
+            var nestedSubtags = await GetNestedSubtags(subtag);
+            subtags.AddRange(nestedSubtags);
+        }
+
+        return subtags;
+    }
+
     public async Task<List<Tag>> GetMatchingTags(List<string> tags) {
         return await dbContext.Tags.Where(t => tags.Contains(t.Name)).ToListAsync();
+    }
+
+    public async Task<Tag> CreateTag(string name, Tag? parentTag) {
+        var tag = Tag.Create(name, parentTag);
+        await dbContext.Tags.AddAsync(tag);
+        await dbContext.SaveChangesAsync();
+        return tag;
     }
 
     public async Task<Tag> UpdateTag(Tag tag, Tag parentTag) {
