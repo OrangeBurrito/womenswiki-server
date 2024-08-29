@@ -1,5 +1,4 @@
 using WomensWiki.Domain.Articles;
-using WomensWiki.Domain.Tags;
 using Tag = WomensWiki.Domain.Tags.Tag;
 
 namespace WomensWiki.Contracts;

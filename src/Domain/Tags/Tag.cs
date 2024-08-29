@@ -23,7 +23,6 @@ public class Tag : Entity {
     }
 }
 
-// tagtree
 public class TagTree {
     public Tag Tag { get; private set; } = null!;
     public List<TagTree> Subtags { get; private set; } = new();

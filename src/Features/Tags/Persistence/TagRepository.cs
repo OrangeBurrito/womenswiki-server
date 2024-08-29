@@ -1,4 +1,3 @@
-using HotChocolate.Execution;
 using Microsoft.EntityFrameworkCore;
 using WomensWiki.Common;
 using WomensWiki.Common.Interfaces;
@@ -79,15 +78,4 @@ public class TagRepository(AppDbContext dbContext) : IRepository {
         await dbContext.SaveChangesAsync();
         return tag;
     }
-}
-
-public class TagNode {
-    public Tag Tag { get; private set; } = null!;
-    public List<TagNode> Subtags { get; private set; } = new();
-
-    public TagNode(Tag tag) {
-        Tag = tag;
-    }
-
-    
 }

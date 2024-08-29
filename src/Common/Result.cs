@@ -10,9 +10,6 @@ public static class Result {
 public class Result<T> {
     public bool IsSuccess { get; private set; }
     public bool IsFailure => !IsSuccess;
-
-    // serialize
-    
     public T? Data { get; private set; }
     
     public List<Error>? Errors { get; private set; }
