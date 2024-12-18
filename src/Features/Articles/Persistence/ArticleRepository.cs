@@ -1,13 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using WomensWiki.Common;
-using WomensWiki.Common.Interfaces;
 using WomensWiki.Domain;
 using WomensWiki.Domain.Articles;
 using Tag = WomensWiki.Domain.Tags.Tag;
 
 namespace WomensWiki.Features.Articles.Persistence;
 
-public class ArticleRepository(AppDbContext dbContext) : IRepository {
+public class ArticleRepository(AppDbContext dbContext) : IArticleRepository {
 
     public async Task<Article?> GetArticleById(Guid id) {
         return await dbContext.Articles

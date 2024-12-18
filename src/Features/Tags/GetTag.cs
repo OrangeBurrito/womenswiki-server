@@ -7,7 +7,7 @@ namespace WomensWiki.Features.Tags;
 public static class GetTag {
     public record GetTagRequest(string Name) : IRequest<Result<TagResponse>>;
 
-    internal sealed class GetTagHandler(TagRepository tagRepository) : IRequestHandler<GetTagRequest, Result<TagResponse>> {
+    internal sealed class GetTagHandler(ITagRepository tagRepository) : IRequestHandler<GetTagRequest, Result<TagResponse>> {
         public async Task<Result<TagResponse>> Handle(GetTagRequest request, CancellationToken cancellationToken) {
             var tag = await tagRepository.GetFullTag(request.Name);
 

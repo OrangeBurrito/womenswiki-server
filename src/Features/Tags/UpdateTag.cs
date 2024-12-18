@@ -17,7 +17,7 @@ public static class UpdateTag {
         }
     }
 
-    internal sealed class UpdateTagHandler(TagRepository repository, UpdateTagValidator validator) : IRequestHandler<UpdateTagRequest, Result<TagResponse>> {
+    internal sealed class UpdateTagHandler(ITagRepository repository, UpdateTagValidator validator) : IRequestHandler<UpdateTagRequest, Result<TagResponse>> {
         public async Task<Result<TagResponse>> Handle(UpdateTagRequest request, CancellationToken cancellationToken) {
             var tag = await repository.GetFullTag(request.tag);
             var parentTag = await repository.GetTag(request.parentTag);

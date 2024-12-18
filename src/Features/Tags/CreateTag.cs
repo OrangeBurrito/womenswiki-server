@@ -1,10 +1,7 @@
 using FluentValidation;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using WomensWiki.Common;
 using WomensWiki.Contracts;
 using WomensWiki.Domain.Tags;
-using Tag = WomensWiki.Domain.Tags.Tag;
 using WomensWiki.Common.Validation;
 using WomensWiki.Features.Tags.Persistence;
 
@@ -22,7 +19,7 @@ public static class CreateTag {
         }
     }
 
-    internal sealed class CreateTagHandler(TagRepository tagRepository, CreateTagValidator validator)
+    internal sealed class CreateTagHandler(ITagRepository tagRepository, CreateTagValidator validator)
         : IRequestHandler<CreateTagCommand, Result<TagResponse>> {
         public async Task<Result<TagResponse>> Handle(CreateTagCommand request, CancellationToken cancellationToken) {
             var duplicateTag = await tagRepository.GetTag(request.Name);

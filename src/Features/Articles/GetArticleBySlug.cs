@@ -6,7 +6,7 @@ namespace WomensWiki.Features.Articles;
 
 public static class GetArticleBySlug {
     public record GetArticleBySlugRequest(string Slug) : IRequest<Result<ArticleResponse>>;
-       internal sealed class GetArticleBySlugHandler(ArticleRepository repository) : IRequestHandler<GetArticleBySlugRequest, Result<ArticleResponse>> {
+       internal sealed class GetArticleBySlugHandler(IArticleRepository repository) : IRequestHandler<GetArticleBySlugRequest, Result<ArticleResponse>> {
         public async Task<Result<ArticleResponse>> Handle(GetArticleBySlugRequest request, CancellationToken cancellationToken) {
             var article = await repository.GetArticleBySlug(request.Slug);
 

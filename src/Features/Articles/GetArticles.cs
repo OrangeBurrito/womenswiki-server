@@ -7,7 +7,7 @@ namespace WomensWiki.Features.Articles;
 public static class GetArticles {
     public record GetArticlesRequest(int Limit = 10, int Offset = 0, bool Descending = false) : IRequest<List<ArticleResponse>>;
 
-    internal sealed class GetArticlesHandler(ArticleRepository repository) : IRequestHandler<GetArticlesRequest, List<ArticleResponse>> {
+    internal sealed class GetArticlesHandler(IArticleRepository repository) : IRequestHandler<GetArticlesRequest, List<ArticleResponse>> {
         public async Task<List<ArticleResponse>> Handle(GetArticlesRequest request, CancellationToken cancellationToken) {
             var articles = await repository.GetArticles(request.Descending, request.Limit, request.Offset);
 

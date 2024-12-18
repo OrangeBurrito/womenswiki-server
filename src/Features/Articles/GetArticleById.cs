@@ -16,7 +16,7 @@ public static class GetArticleById {
         }
     }
 
-    internal sealed class GetArticleByIdHandler(ArticleRepository repository, GetArticleByIdValidator validator)
+    internal sealed class GetArticleByIdHandler(IArticleRepository repository, GetArticleByIdValidator validator)
         : IRequestHandler<GetArticleByIdRequest, Result<ArticleResponse>> {
         public async Task<Result<ArticleResponse>> Handle(GetArticleByIdRequest request, CancellationToken cancellationToken) {
             var article = await repository.GetArticleById(request.Id);

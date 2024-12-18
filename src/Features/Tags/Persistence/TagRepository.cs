@@ -1,12 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using WomensWiki.Common;
-using WomensWiki.Common.Interfaces;
 using WomensWiki.Domain.Tags;
 using Tag = WomensWiki.Domain.Tags.Tag;
 
 namespace WomensWiki.Features.Tags.Persistence;
 
-public class TagRepository(AppDbContext dbContext) : IRepository {
+public class TagRepository(AppDbContext dbContext) : ITagRepository {
     public async Task<Tag?> GetTag(string name) {
         return await dbContext.Tags.FirstOrDefaultAsync(t => t.Name == name);
     }

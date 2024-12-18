@@ -25,7 +25,7 @@ public static class CreateArticle {
         }
     }
 
-    internal sealed class CreateArticleHandler(ArticleRepository articleRepository, TagRepository tagRepository, CreateArticleValidator validator)
+    internal sealed class CreateArticleHandler(IArticleRepository articleRepository, ITagRepository tagRepository, CreateArticleValidator validator)
         : IRequestHandler<CreateArticleCommand, Result<CreateArticleResponse>> {
         public async Task<Result<CreateArticleResponse>> Handle(CreateArticleCommand request, CancellationToken cancellationToken) {
             var tags = await tagRepository.GetMatchingTags(request.Tags);

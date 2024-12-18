@@ -17,7 +17,7 @@ public static class GetNestedSubtags {
         }
     }
 
-    internal sealed class GetNestedSubtagsHandler(TagRepository tagRepository, GetNestedSubtagsValidator validator) : IRequestHandler<GetNestedSubtagsRequest, Result<TagTree>> {
+    internal sealed class GetNestedSubtagsHandler(ITagRepository tagRepository, GetNestedSubtagsValidator validator) : IRequestHandler<GetNestedSubtagsRequest, Result<TagTree>> {
         public async Task<Result<TagTree>> Handle(GetNestedSubtagsRequest request, CancellationToken cancellationToken) {
             var tag = await tagRepository.GetFullTag(request.Tag);
 

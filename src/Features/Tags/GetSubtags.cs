@@ -16,7 +16,7 @@ public static class GetSubtags {
         }
     }
 
-    internal sealed class GetSubtagsHandler(TagRepository tagRepository, GetSubtagsValidator validator) : IRequestHandler<GetSubtagsRequest, Result<List<TagResponse>>> {
+    internal sealed class GetSubtagsHandler(ITagRepository tagRepository, GetSubtagsValidator validator) : IRequestHandler<GetSubtagsRequest, Result<List<TagResponse>>> {
         public async Task<Result<List<TagResponse>>> Handle(GetSubtagsRequest request, CancellationToken cancellationToken) {
             var tag = await tagRepository.GetFullTag(request.Tag);
 

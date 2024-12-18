@@ -1,7 +1,5 @@
 using FluentValidation;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using WomensWiki.Common;
 using WomensWiki.Common.Validation;
 using WomensWiki.Contracts;
 using WomensWiki.Domain.Articles;
@@ -21,7 +19,7 @@ public static class UpdateArticle {
         }
     }
 
-    internal sealed class UpdateArticleHandler(ArticleRepository articleRepository, UserRepository userRepository, UpdateArticleValidator validator)
+    internal sealed class UpdateArticleHandler(IArticleRepository articleRepository, IUserRepository userRepository, UpdateArticleValidator validator)
         : IRequestHandler<UpdateArticleCommand, Result<ArticleResponse>> {
         public async Task<Result<ArticleResponse>> Handle(UpdateArticleCommand request, CancellationToken cancellationToken) {
             var article = await articleRepository.GetArticleById(request.ArticleId);
