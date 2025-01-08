@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "../../../../Library/Application Support/Code/User/workspaceStorage/ab665e8753ff6987fa93f9e28b40ca8b/ms-dotnettools.csdevkit/womenswiki-server.generated.sln",
+                "${workspaceFolder}/womenswiki-server.sln",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary;ForceNoAlign"
             ],
@@ -19,7 +19,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "../../../../Library/Application Support/Code/User/workspaceStorage/ab665e8753ff6987fa93f9e28b40ca8b/ms-dotnettools.csdevkit/womenswiki-server.generated.sln",
+                "${workspaceFolder}/womenswiki-server.sln",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary;ForceNoAlign"
             ],
@@ -33,7 +33,7 @@
                 "watch",
                 "run",
                 "--project",
-                "../../../../Library/Application Support/Code/User/workspaceStorage/ab665e8753ff6987fa93f9e28b40ca8b/ms-dotnettools.csdevkit/womenswiki-server.generated.sln"
+                "${workspaceFolder}/womenswiki-server.sln"
             ],
             "problemMatcher": "$msCompile"
         }
