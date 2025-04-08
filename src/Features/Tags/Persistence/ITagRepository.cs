@@ -1,6 +1,7 @@
 namespace WomensWiki.Features.Tags.Persistence;
 
 using WomensWiki.Common.Interfaces;
+using WomensWiki.Domain.Colors;
 using WomensWiki.Domain.Tags;
 using Tag = WomensWiki.Domain.Tags.Tag;
 
@@ -13,6 +14,7 @@ public interface ITagRepository : IRepository {
     Task<List<Tag>> GetSubtags(Tag tag);
     Task<TagTree?> GetNestedSubtags(Tag tag, string? match = null);
     Task<List<Tag>> GetMatchingTags(List<string> tags);
-    Task<Tag> CreateTag(string name, Tag? parentTag);
+    Task<Tag> CreateTag(string name, Color color, Tag? parentTag);
     Task<Tag> UpdateTag(Tag tag, Tag parentTag);
+    Task<Tag> UpdateTagColor(Tag tag, Color color);
 }

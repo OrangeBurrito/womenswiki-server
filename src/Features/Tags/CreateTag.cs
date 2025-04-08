@@ -4,11 +4,12 @@ using WomensWiki.Contracts;
 using WomensWiki.Domain.Tags;
 using WomensWiki.Common.Validation;
 using WomensWiki.Features.Tags.Persistence;
+using WomensWiki.Features.Colors.Persistence;
 
 namespace WomensWiki.Features.Tags;
 
 public static class CreateTag {
-    public record CreateTagCommand(string Name, string? ParentTag = null) : IRequest<Result<TagResponse>>;
+    public record CreateTagCommand(string Name, string Color, string? ParentTag = null) : IRequest<Result<TagResponse>>;
 
     public class CreateTagValidator : AbstractValidator<CreateTagCommand> {
         public CreateTagValidator() {
@@ -19,11 +20,12 @@ public static class CreateTag {
         }
     }
 
-    internal sealed class CreateTagHandler(ITagRepository tagRepository, CreateTagValidator validator)
+    internal sealed class CreateTagHandler(ITagRepository tagRepository, IColorRepository colorRepository, CreateTagValidator validator)
         : IRequestHandler<CreateTagCommand, Result<TagResponse>> {
         public async Task<Result<TagResponse>> Handle(CreateTagCommand request, CancellationToken cancellationToken) {
             var duplicateTag = await tagRepository.GetTag(request.Name);
             var parentTag = await tagRepository.GetTag(request.ParentTag);
+            var color = await colorRepository.GetColor(request.Color);
 
             var validationResult = await validator.ValidateAsync(
                 Validation.Context(request,
@@ -34,7 +36,7 @@ public static class CreateTag {
                 return Result.Failure<TagResponse>(ErrorMapper.Map(validationResult));
             }
 
-            var tag = await tagRepository.CreateTag(request.Name, parentTag);
+            var tag = await tagRepository.CreateTag(request.Name, color, parentTag);
             return Result.Success(TagResponse.FromTag(tag));
         }
     }

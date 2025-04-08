@@ -11,13 +11,13 @@ public class ArticleRepository(AppDbContext dbContext) : IArticleRepository {
     public async Task<Article?> GetArticleById(Guid id) {
         return await dbContext.Articles
             .Include(a => a.History)
-            .Include(a => a.Tags)
+            .Include(a => a.Tags).ThenInclude(t => t.Color).AsNoTracking()
             .FirstOrDefaultAsync(a => a.Id == id);
     }
 
     public async Task<Article?> GetArticleBySlug(string slug) {
         return await dbContext.Articles
-            .Include(a => a.Tags)
+            .Include(a => a.Tags).ThenInclude(t => t.Color).AsNoTracking()
             .FirstOrDefaultAsync(a => a.Slug == slug);
     }
 

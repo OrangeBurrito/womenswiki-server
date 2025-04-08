@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using WomensWiki.Common;
+using WomensWiki.Domain.Colors;
 using WomensWiki.Domain.Tags;
 using Tag = WomensWiki.Domain.Tags.Tag;
 
@@ -12,8 +13,9 @@ public class TagRepository(AppDbContext dbContext) : ITagRepository {
 
     public async Task<Tag?> GetFullTag(string name) {
         return await dbContext.Tags
-        .Include(t => t.ParentTags).AsNoTracking()
+        .Include(t => t.ParentTags).ThenInclude(pt => pt.Color).AsNoTracking()
         .Include(t => t.Articles).AsNoTracking()
+        .Include(t => t.Color).AsNoTracking()
         .FirstOrDefaultAsync(t => t.Name == name);
     }
 
@@ -24,6 +26,7 @@ public class TagRepository(AppDbContext dbContext) : ITagRepository {
 
         return await query
             .Include(t => t.Articles)
+            .Include(t => t.Color).AsNoTracking()
             .Skip(offset)
             .Take(limit)
             .ToListAsync();
@@ -41,7 +44,10 @@ public class TagRepository(AppDbContext dbContext) : ITagRepository {
     }
 
     public async Task<List<Tag>> GetSubtags(IQueryable<Tag> query, Tag tag) {
-        return await query.Where(t => t.ParentTags.Any(pt => pt.Name == tag.Name)).ToListAsync();
+        return await query
+            .Where(t => t.ParentTags.Any(pt => pt.Name == tag.Name))
+            .Include(t => t.Color).AsNoTracking()
+            .ToListAsync();
     }
     public async Task<List<Tag>> GetSubtags(Tag tag) {
         return await GetSubtags(dbContext.Tags, tag);
@@ -65,8 +71,8 @@ public class TagRepository(AppDbContext dbContext) : ITagRepository {
         return await dbContext.Tags.Where(t => tags.Contains(t.Name)).ToListAsync();
     }
 
-    public async Task<Tag> CreateTag(string name, Tag? parentTag) {
-        var tag = Tag.Create(name, parentTag);
+    public async Task<Tag> CreateTag(string name, Color color, Tag? parentTag) {
+        var tag = Tag.Create(name, color, parentTag);
         await dbContext.Tags.AddAsync(tag);
         await dbContext.SaveChangesAsync();
         return tag;
@@ -74,6 +80,12 @@ public class TagRepository(AppDbContext dbContext) : ITagRepository {
 
     public async Task<Tag> UpdateTag(Tag tag, Tag parentTag) {
         tag.Update(parentTag);
+        await dbContext.SaveChangesAsync();
+        return tag;
+    }
+
+    public async Task<Tag> UpdateTagColor(Tag tag, Color color) {
+        tag.UpdateColor(color);
         await dbContext.SaveChangesAsync();
         return tag;
     }
