@@ -8,8 +8,8 @@ public class CachedArticleRepository(ArticleRepository repository, IMemoryCache 
     private static readonly TimeSpan CacheTime = TimeSpan.FromHours(1);
     private static readonly TimeSpan CacheTimeLong = TimeSpan.FromDays(2);
 
-    public Task<Article> CreateArticle(string title, string content, List<Domain.Tags.Tag>? tags = null) {
-        return repository.CreateArticle(title, content, tags);
+    public Task<Article> CreateArticle(User user, string title, string content, List<Domain.Tags.Tag>? tags = null) {
+        return repository.CreateArticle(user, title, content, tags);
     }
 
     public async Task<Article?> GetArticleById(Guid id) {
@@ -21,14 +21,14 @@ public class CachedArticleRepository(ArticleRepository repository, IMemoryCache 
             });
     }
 
-    public async Task<Article?> GetArticleBySlug(string slug) {
-        return await cache.GetOrCreateAsync(
-            $"article-slug={slug}",
-            entry => {
-                entry.SetAbsoluteExpiration(CacheTimeLong);
-                return repository.GetArticleBySlug(slug);
-            });
-    }
+    // public async Task<Article?> GetArticleBySlug(string slug) {
+    //     return await cache.GetOrCreateAsync(
+    //         $"article-slug={slug}",
+    //         entry => {
+    //             entry.SetAbsoluteExpiration(CacheTimeLong);
+    //             return repository.GetArticleBySlug(slug);
+    //         });
+    // }
 
     public async Task<IEnumerable<Article>> GetArticles(bool descending, int limit, int offset) {
         return await cache.GetOrCreateAsync(

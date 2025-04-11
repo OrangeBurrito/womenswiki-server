@@ -8,6 +8,7 @@ using WomensWiki.Domain.Articles;
 using WomensWiki.Domain.Tags;
 using WomensWiki.Features.Articles.Persistence;
 using WomensWiki.Features.Tags.Persistence;
+using WomensWiki.Features.Users.Persistence;
 
 namespace WomensWiki.Features.Articles;
 
@@ -28,10 +29,12 @@ public static class CreateArticle {
     internal sealed class CreateArticleHandler(
         IArticleRepository articleRepository,
         ITagRepository tagRepository,
+        IUserRepository userRepository,
         CreateArticleValidator validator
     )
     : IRequestHandler<CreateArticleCommand, Result<CreateArticleResponse>> {
         public async Task<Result<CreateArticleResponse>> Handle(CreateArticleCommand request, CancellationToken cancellationToken) {
+            var author = await userRepository.GetUserByUsername(request.Author);
             var tags = await tagRepository.GetMatchingTags(request.Tags);
             var duplicateArticle = await articleRepository.GetDuplicateArticle(request.Title);
 
@@ -42,9 +45,9 @@ public static class CreateArticle {
                 return Result.Failure<CreateArticleResponse>(ErrorMapper.Map(validationResult));
             }
 
-            var article = await articleRepository.CreateArticle(request.Title, request.Content, tags);
+            var article = await articleRepository.CreateArticle(author, request.Title, request.Content, tags);
 
-            return Result.Success(new CreateArticleResponse(article.Id, article.CreatedAt, article.Title, article.Content, article.Slug, article.Tags));
+            return Result.Success(new CreateArticleResponse(article.Id, article.CreatedAt, article.Title, article.LatestVersion, article.Tags));
         }
     }
 

@@ -10,19 +10,20 @@ public class ArticleRepository(AppDbContext dbContext) : IArticleRepository {
 
     public async Task<Article?> GetArticleById(Guid id) {
         return await dbContext.Articles
+            .Include(a => a.LatestVersion)
             .Include(a => a.History)
             .Include(a => a.Tags).ThenInclude(t => t.Color).AsNoTracking()
             .FirstOrDefaultAsync(a => a.Id == id);
     }
 
-    public async Task<Article?> GetArticleBySlug(string slug) {
-        return await dbContext.Articles
-            .Include(a => a.Tags).ThenInclude(t => t.Color).AsNoTracking()
-            .FirstOrDefaultAsync(a => a.Slug == slug);
-    }
+    // public async Task<Article?> GetArticleBySlug(string slug) {
+    //     return await dbContext.Articles
+    //         .Include(a => a.Tags).ThenInclude(t => t.Color).AsNoTracking()
+    //         .FirstOrDefaultAsync(a => a.Slug == slug);
+    // }
 
     public async Task<Article?> GetDuplicateArticle(string title) {
-        return await dbContext.Articles.FirstOrDefaultAsync(a => a.Title == title && a.Slug == Article.GenerateSlug(title));
+        return await dbContext.Articles.FirstOrDefaultAsync(a => a.Title == Article.FormatTitle(title));
     }
 
     public async Task<IEnumerable<Article>> GetArticles(bool descending, int limit, int offset) {
@@ -50,8 +51,8 @@ public class ArticleRepository(AppDbContext dbContext) : IArticleRepository {
             .ToListAsync();
     }
 
-    public async Task<Article> CreateArticle(string title, string content, List<Tag>? tags = null) {
-        var article = Article.Create(title, content);
+    public async Task<Article> CreateArticle(User user, string title, string content, List<Tag>? tags = null) {
+        var article = Article.Create(title);
         if (tags.Count > 0) {
             article.UpdateTags(tags);
             foreach (var tag in tags) {
@@ -60,6 +61,10 @@ public class ArticleRepository(AppDbContext dbContext) : IArticleRepository {
         }
         await dbContext.Articles.AddAsync(article);
         await dbContext.SaveChangesAsync();
+        
+        article.Update(user, content);
+        await dbContext.SaveChangesAsync();
+        
         return article;
     }
 
