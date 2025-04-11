@@ -21,14 +21,14 @@ public class CachedArticleRepository(ArticleRepository repository, IMemoryCache 
             });
     }
 
-    // public async Task<Article?> GetArticleBySlug(string slug) {
-    //     return await cache.GetOrCreateAsync(
-    //         $"article-slug={slug}",
-    //         entry => {
-    //             entry.SetAbsoluteExpiration(CacheTimeLong);
-    //             return repository.GetArticleBySlug(slug);
-    //         });
-    // }
+    public async Task<Article?> GetArticleByTitle(string title) {
+        return await cache.GetOrCreateAsync(
+            $"article-title={title}",
+            entry => {
+                entry.SetAbsoluteExpiration(CacheTimeLong);
+                return repository.GetArticleByTitle(title);
+            });
+    }
 
     public async Task<IEnumerable<Article>> GetArticles(bool descending, int limit, int offset) {
         return await cache.GetOrCreateAsync(

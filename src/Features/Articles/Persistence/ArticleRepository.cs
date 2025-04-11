@@ -16,11 +16,11 @@ public class ArticleRepository(AppDbContext dbContext) : IArticleRepository {
             .FirstOrDefaultAsync(a => a.Id == id);
     }
 
-    // public async Task<Article?> GetArticleBySlug(string slug) {
-    //     return await dbContext.Articles
-    //         .Include(a => a.Tags).ThenInclude(t => t.Color).AsNoTracking()
-    //         .FirstOrDefaultAsync(a => a.Slug == slug);
-    // }
+    public async Task<Article?> GetArticleByTitle(string title) {
+        return await dbContext.Articles
+            .Include(a => a.Tags).ThenInclude(t => t.Color).AsNoTracking()
+            .FirstOrDefaultAsync(a => a.Title.ToLower() == Article.FormatTitle(title).ToLower());
+    }
 
     public async Task<Article?> GetDuplicateArticle(string title) {
         return await dbContext.Articles.FirstOrDefaultAsync(a => a.Title == Article.FormatTitle(title));

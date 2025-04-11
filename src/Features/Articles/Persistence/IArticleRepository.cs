@@ -7,7 +7,7 @@ namespace WomensWiki.Features.Articles.Persistence;
 
 public interface IArticleRepository : IRepository {
     Task<Article?> GetArticleById(Guid id);
-    // Task<Article?> GetArticleBySlug(string slug);
+    Task<Article?> GetArticleByTitle(string title);
     Task<Article?> GetDuplicateArticle(string title);
     Task<IEnumerable<Article>> GetArticles(bool descending, int limit, int offset);
     Task<List<Article>> GetArticlesByTag(Tag tag, bool descending, int limit, int offset);

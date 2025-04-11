@@ -7,7 +7,7 @@ namespace WomensWiki;
 
 public static class DependencyInjection {
     public static void AddInfrastructure(this IServiceCollection services, string connectionString, System.Reflection.Assembly assembly) {
-        services.AddDbContext<AppDbContext>(o => o.UseSqlServer(connectionString));
+        services.AddDbContext<AppDbContext>(o => o.UseNpgsql(connectionString, o => o.SetPostgresVersion(9,6)));
 
         var repositoryTypes = assembly.GetTypes()
             .Where(t => t.IsClass && !t.IsAbstract)

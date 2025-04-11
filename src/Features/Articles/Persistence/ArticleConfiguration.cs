@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using WomensWiki.Domain;
 using WomensWiki.Domain.Articles;
 
 namespace WomensWiki.Features.Articles.Persistence;
@@ -17,6 +16,6 @@ public class ArticleConfiguration : IEntityTypeConfiguration<Article> {
 
         // builder.HasMany(a => a.Tags)
         //     .WithMany()
-        //     .UsingEntity(j => j.ToTable("ArticleTags"));
+        //     .UsingEntity(at => at.ToTable("ArticleTags"));
     }
 }

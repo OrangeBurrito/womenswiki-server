@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WomensWiki.Domain;
 using WomensWiki.Domain.Articles;
 using WomensWiki.Domain.Colors;
@@ -17,5 +18,18 @@ public class AppDbContext : DbContext {
 
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+    }
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder) {
+        configurationBuilder
+            .Properties<DateTimeOffset>()
+            .HaveConversion<DateTimeOffsetConverter>();
+    }
+
+    private class DateTimeOffsetConverter : ValueConverter<DateTimeOffset, DateTimeOffset> {
+        public DateTimeOffsetConverter() : base(
+            d => d.ToUniversalTime(),
+           d => d.ToUniversalTime()
+        ) {}
     }
 }
