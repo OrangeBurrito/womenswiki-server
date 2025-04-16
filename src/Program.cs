@@ -4,10 +4,9 @@ using WomensWiki;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Environment.IsDevelopment() ? "DevConnection" : "ProdConnection";
 var assembly = typeof(Program).Assembly;
 
-builder.Services.AddInfrastructure(builder.Configuration.GetConnectionString(connectionString)!, assembly);
+builder.Services.AddInfrastructure(builder.Configuration.GetConnectionString("WikiConnection")!, assembly);
 builder.Services.AddApplication(assembly);
 builder.Services.AddApi();
 

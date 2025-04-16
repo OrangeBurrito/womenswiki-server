@@ -1,7 +1,10 @@
 # WomensWiki Server
 ASP.NET Core backend for WomensWiki.
 
-## Usage
-To run locally, clone this repo and setup a Docker instance running SQL Server. Add the connection string (`DevConnection`) to `appsettings.Development.json`, then run migrations.
-
-Test queries/mutations at the `localhost:5276/graphql` endpoint.
+## Running Locally
+- Set up a docker container running Postgres (`postgres:alpine` is recommended)
+- Git clone this repository
+- Add the property `WikiConnection` in the `ConnectionStrings` section of `appsettings.Development.json`, with the value being your Postgres container's connection string
+- Update your local database with `dotnet ef database update`
+- Run with `dotnet run` at project root level
+- Test queries and mutations at the `localhost:5276/graphql` endpoint

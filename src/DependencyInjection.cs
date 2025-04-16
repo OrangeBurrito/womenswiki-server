@@ -1,13 +1,19 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 using WomensWiki.Common;
 using WomensWiki.Common.Interfaces;
+using WomensWiki.src.Common;
 
 namespace WomensWiki;
 
 public static class DependencyInjection {
     public static void AddInfrastructure(this IServiceCollection services, string connectionString, System.Reflection.Assembly assembly) {
-        services.AddDbContext<AppDbContext>(o => o.UseNpgsql(connectionString, o => o.SetPostgresVersion(9,6)));
+        services.AddDbContext<AppDbContext>(o => 
+        o.UseNpgsql(connectionString, o => o.SetPostgresVersion(9,6))
+            .ReplaceService<IHistoryRepository, HistoryContext>()
+            .UseSnakeCaseNamingConvention()
+        );
 
         var repositoryTypes = assembly.GetTypes()
             .Where(t => t.IsClass && !t.IsAbstract)

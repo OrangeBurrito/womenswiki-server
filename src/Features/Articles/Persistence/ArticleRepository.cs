@@ -32,7 +32,7 @@ public class ArticleRepository(AppDbContext dbContext) : IArticleRepository {
             dbContext.Articles.OrderBy(a => a.CreatedAt);
 
         return await query
-            .Include(a => a.Tags)
+            .Include(a => a.Tags).ThenInclude(t => t.Color).AsNoTracking()
             .Skip(offset)
             .Take(limit)
             .ToListAsync();

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WomensWiki.Common;
@@ -11,9 +12,11 @@ using WomensWiki.Common;
 namespace WomensWiki.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250416112139_UseSnakeCaseTables")]
+    partial class UseSnakeCaseTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,7 +41,7 @@ namespace WomensWiki.Migrations
                     b.HasIndex("TagsId")
                         .HasDatabaseName("ix_article_tags_tags_id");
 
-                    b.ToTable("article_tags", (string)null);
+                    b.ToTable("ArticleTags", (string)null);
                 });
 
             modelBuilder.Entity("TagTag", b =>
@@ -57,7 +60,7 @@ namespace WomensWiki.Migrations
                     b.HasIndex("TagId")
                         .HasDatabaseName("ix_child_tags_tag_id");
 
-                    b.ToTable("child_tags", (string)null);
+                    b.ToTable("ChildTags", (string)null);
                 });
 
             modelBuilder.Entity("WomensWiki.Domain.Articles.Article", b =>

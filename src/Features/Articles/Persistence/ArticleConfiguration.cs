@@ -14,8 +14,8 @@ public class ArticleConfiguration : IEntityTypeConfiguration<Article> {
             .HasForeignKey(r => r.ArticleId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // builder.HasMany(a => a.Tags)
-        //     .WithMany()
-        //     .UsingEntity(at => at.ToTable("ArticleTags"));
+        builder.HasMany(left => left.Tags)
+            .WithMany(right => right.Articles)
+            .UsingEntity(join => join.ToTable("article_tags"));
     }
 }
