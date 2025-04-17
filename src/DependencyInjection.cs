@@ -46,8 +46,11 @@ public static class DependencyInjection {
         services.AddMediatR(c => c.RegisterServicesFromAssembly(assembly));
     }
 
-    public static void AddApi(this IServiceCollection services) {
-        services.AddCors(o => o.AddPolicy("Localhost", p => { p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader(); }));
+    public static void AddApi(this IServiceCollection services, string allowedHosts) {
+        services.AddCors(o => {
+            o.AddPolicy("Localhost", p => p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader() );
+            o.AddPolicy("Prod", p => p.WithOrigins(allowedHosts.Split(";")).AllowAnyMethod().AllowAnyHeader() );
+            });
         services.AddGraphQLServer().AddTypes().AddSorting();
     }
 }

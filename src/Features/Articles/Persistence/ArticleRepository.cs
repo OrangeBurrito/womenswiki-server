@@ -10,7 +10,6 @@ public class ArticleRepository(AppDbContext dbContext) : IArticleRepository {
 
     public async Task<Article?> GetArticleById(Guid id) {
         return await dbContext.Articles
-            .Include(a => a.LatestVersion)
             .Include(a => a.History)
             .Include(a => a.Tags).ThenInclude(t => t.Color).AsNoTracking()
             .FirstOrDefaultAsync(a => a.Id == id);

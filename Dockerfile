@@ -1,5 +1,6 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build
 WORKDIR /womenswiki
+ENV HOST 0.0.0.0
 
 COPY . ./
 RUN dotnet restore

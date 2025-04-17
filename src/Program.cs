@@ -8,13 +8,18 @@ var assembly = typeof(Program).Assembly;
 
 builder.Services.AddInfrastructure(builder.Configuration.GetConnectionString("WikiConnection")!, assembly);
 builder.Services.AddApplication(assembly);
-builder.Services.AddApi();
+builder.Services.AddApi(builder.Configuration["AllowedOrigins"]);
+
+Console.WriteLine("AllowedOrigins: " + builder.Configuration["AllowedOrigins"]);
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment()) {
+if (app.Environment.IsProduction()) {
+    app.UseCors("Prod");
+} else {
     app.UseCors("Localhost");
 }
+
 app.MapGraphQL().WithOptions(new GraphQLServerOptions { Tool = { Enable = app.Environment.IsDevelopment() } });
 
 app.Run();
