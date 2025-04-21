@@ -51,6 +51,9 @@ public static class DependencyInjection {
             o.AddPolicy("Localhost", p => p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader() );
             o.AddPolicy("Prod", p => p.WithOrigins(allowedHosts.Split(";")).AllowAnyMethod().AllowAnyHeader() );
             });
-        services.AddGraphQLServer().AddTypes().AddSorting();
+        services
+            .AddGraphQLServer()
+            .AddTypes()
+            .AddSorting();
     }
 }

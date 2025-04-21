@@ -68,6 +68,7 @@ public class ArticleRepository(AppDbContext dbContext) : IArticleRepository {
     }
 
     public async Task<Article> UpdateArticle(Article article, User user, string content, string? summary = null) {
+        dbContext.Articles.Attach(article);
         article.Update(user, content, summary);
         await dbContext.SaveChangesAsync();
         return article;

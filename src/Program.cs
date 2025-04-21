@@ -10,8 +10,6 @@ builder.Services.AddInfrastructure(builder.Configuration.GetConnectionString("Wi
 builder.Services.AddApplication(assembly);
 builder.Services.AddApi(builder.Configuration["AllowedOrigins"]);
 
-Console.WriteLine("AllowedOrigins: " + builder.Configuration["AllowedOrigins"]);
-
 var app = builder.Build();
 
 if (app.Environment.IsProduction()) {
