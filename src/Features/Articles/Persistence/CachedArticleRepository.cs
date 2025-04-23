@@ -7,11 +7,6 @@ namespace WomensWiki.Features.Articles.Persistence;
 public class CachedArticleRepository(ArticleRepository repository, IMemoryCache cache) : IArticleRepository {
     private static readonly TimeSpan CacheTime = TimeSpan.FromHours(1);
     private static readonly TimeSpan CacheTimeLong = TimeSpan.FromDays(2);
-
-    public Task<Article> CreateArticle(User user, string title, string content, List<Domain.Tags.Tag>? tags = null) {
-        return repository.CreateArticle(user, title, content, tags);
-    }
-
     public async Task<Article?> GetArticleById(Guid id) {
         return await cache.GetOrCreateAsync(
             $"article-id={id}",
@@ -32,7 +27,7 @@ public class CachedArticleRepository(ArticleRepository repository, IMemoryCache 
 
     public async Task<IEnumerable<Article>> GetArticles(bool descending, int limit, int offset) {
         return await cache.GetOrCreateAsync(
-            $"articles-{(descending ? "desc" : "asc")}-max{limit}-offset{offset}",
+            $"articles",
             entry => {
                 entry.SetAbsoluteExpiration(CacheTime);
                 return repository.GetArticles(descending, limit, offset);
@@ -47,7 +42,15 @@ public class CachedArticleRepository(ArticleRepository repository, IMemoryCache 
         return repository.GetDuplicateArticle(title);
     }
 
+    public Task<Article> CreateArticle(User user, string title, string content, List<Domain.Tags.Tag>? tags = null) {
+        var article = repository.CreateArticle(user, title, content, tags);
+        cache.Remove("articles");
+        return article;
+    }
+
     public Task<Article> UpdateArticle(Article article, User user, string content, string? summary = null) {
-        return repository.UpdateArticle(article, user, content, summary);
+        var updatedArticle = repository.UpdateArticle(article, user, content, summary);
+        cache.Remove($"article-title={article.Title}");
+        return updatedArticle;
     }
 }
