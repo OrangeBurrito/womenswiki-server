@@ -50,7 +50,7 @@ public static class DependencyInjection {
         services.AddCors(o => {
             o.AddPolicy("Localhost", p => p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader() );
             o.AddPolicy("Prod", p => p.WithOrigins(allowedHosts.Split(";")).AllowAnyMethod().AllowAnyHeader() );
-            });
+        });
         services
             .AddGraphQLServer()
             .AddTypes()
