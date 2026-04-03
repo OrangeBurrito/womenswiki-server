@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using WomensWiki.Common;
+using WomensWiki.Infrastructure.Persistence;
 using WomensWiki.Domain.Colors;
 
 namespace WomensWiki.Features.Colors.Persistence;

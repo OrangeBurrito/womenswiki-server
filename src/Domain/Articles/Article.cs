@@ -1,3 +1,5 @@
+using WomensWiki.Domain.Users;
+
 namespace WomensWiki.Domain.Articles;
 using Tag = WomensWiki.Domain.Tags.Tag;
 
@@ -6,6 +8,7 @@ public class Article : Entity {
     public string? LatestVersion { get; private set; } = null!;
     public List<Tag> Tags { get; private set; } = [];
     public DateTimeOffset? UpdatedAt { get; private set; }
+	public DateTimeOffset? RemovedAt { get; private set; }
     public List<Revision> History { get; private set; } = [];
 
     public static Article Create(string title) {

@@ -1,9 +1,8 @@
 using FluentValidation;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using WomensWiki.Common;
-using WomensWiki.Common.Validation;
-using WomensWiki.Contracts;
+using WomensWiki.Common.Attributes;
+using WomensWiki.Common.Contracts;
 using WomensWiki.Domain.Articles;
 using WomensWiki.Domain.Tags;
 using WomensWiki.Features.Articles.Persistence;
@@ -13,9 +12,9 @@ using WomensWiki.Features.Users.Persistence;
 namespace WomensWiki.Features.Articles;
 
 public static class CreateArticle {
-    public record CreateArticleCommand(string Author, string Title, string Content, List<string>? Tags = null) : IRequest<Result<CreateArticleResponse>>;
+    public record CreateArticleCommand(Guid Author, string Title, string Content, List<string>? Tags = null) : IRequest<Result<CreateArticleResponse>>;
 
-    public class CreateArticleValidator : AbstractValidator<CreateArticleCommand> {
+    public sealed class CreateArticleValidator : AbstractValidator<CreateArticleCommand> {
         public CreateArticleValidator() {
             RuleFor(x => x.Author).NotEmpty();
             RuleFor(x => x.Title).NotEmpty().UniqueTitle().MinimumLength(3);
@@ -34,7 +33,7 @@ public static class CreateArticle {
     )
     : IRequestHandler<CreateArticleCommand, Result<CreateArticleResponse>> {
         public async Task<Result<CreateArticleResponse>> Handle(CreateArticleCommand request, CancellationToken cancellationToken) {
-            var author = await userRepository.GetUserByUsername(request.Author);
+            var author = await userRepository.GetUserById(request.Author);
             var tags = await tagRepository.GetMatchingTags(request.Tags);
             var duplicateArticle = await articleRepository.GetDuplicateArticle(request.Title);
 
@@ -53,6 +52,7 @@ public static class CreateArticle {
 
     [MutationType]
     public class CreateArticleMutation {
+		[RoleAuthorize(Constants.Role.Editor | Constants.Role.Admin)]
         public async Task<Result<CreateArticleResponse>> CreateArticleAsync([Service] ISender sender, CreateArticleCommand input) {
             return await sender.Send(input);
         }

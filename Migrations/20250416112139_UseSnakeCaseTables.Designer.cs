@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using WomensWiki.Common;
+using WomensWiki.Infrastructure.Persistence;
 
 #nullable disable
 
-namespace WomensWiki.Migrations
+namespace WomensWiki.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     [Migration("20250416112139_UseSnakeCaseTables")]

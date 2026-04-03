@@ -1,4 +1,5 @@
 using WomensWiki.Domain.Articles;
+using WomensWiki.Domain.Users;
 
 namespace WomensWiki.Domain;
 

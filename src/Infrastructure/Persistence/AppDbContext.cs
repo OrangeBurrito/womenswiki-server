@@ -1,19 +1,19 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WomensWiki.Domain;
 using WomensWiki.Domain.Articles;
 using WomensWiki.Domain.Colors;
+using WomensWiki.Domain.Users;
 using Tag = WomensWiki.Domain.Tags.Tag;
 
-namespace WomensWiki.Common;
+namespace WomensWiki.Infrastructure.Persistence;
 
 public class AppDbContext : DbContext {
     public DbSet<Article> Articles { get; set; }
     public DbSet<Revision> Revisions { get; set; }
     public DbSet<Tag> Tags { get; set; }
     public DbSet<User> Users { get; set; }
+	 public DbSet<Role> Roles { get; set; }
     public DbSet<Color> Colors { get; set; }
 
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }

@@ -1,6 +1,6 @@
 namespace WomensWiki.Features.Tags.Persistence;
 
-using WomensWiki.Common.Interfaces;
+using WomensWiki.Infrastructure.Interfaces;
 using WomensWiki.Domain.Colors;
 using WomensWiki.Domain.Tags;
 using Tag = WomensWiki.Domain.Tags.Tag;

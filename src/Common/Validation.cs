@@ -1,7 +1,7 @@
 using FluentValidation;
 using WomensWiki.Features.Tags;
 
-namespace WomensWiki.Common.Validation;
+namespace WomensWiki.Common;
 
 public static class Validation {
     public static ValidationContext<T> Context<T>(T instance, params (string propertyName, object? property)[] properties) {

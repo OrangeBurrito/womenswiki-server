@@ -1,7 +1,8 @@
 using FluentValidation;
 using MediatR;
-using WomensWiki.Common.Validation;
-using WomensWiki.Contracts;
+using WomensWiki.Common;
+using WomensWiki.Common.Attributes;
+using WomensWiki.Common.Contracts;
 using WomensWiki.Domain.Articles;
 using WomensWiki.Features.Articles.Persistence;
 using WomensWiki.Features.Users.Persistence;
@@ -9,11 +10,11 @@ using WomensWiki.Features.Users.Persistence;
 namespace WomensWiki.Features;
 
 public static class UpdateArticle {
-    public record UpdateArticleCommand(Guid ArticleId, string Author, string Content, string? Summary = null) : IRequest<Result<ArticleResponse>>;
+    public record UpdateArticleCommand(Guid ArticleId, Guid Author, string Content, string? Summary = null) : IRequest<Result<ArticleResponse>>;
 
-    public class UpdateArticleValidator : AbstractValidator<UpdateArticleCommand> {
+    public sealed class UpdateArticleValidator : AbstractValidator<UpdateArticleCommand> {
         public UpdateArticleValidator() {
-            RuleFor(x => x.ArticleId).ArticleExists();
+            RuleFor(x => x.ArticleId).NotEmpty().ArticleExists();
             RuleFor(x => x.Author).NotEmpty();
             RuleFor(x => x.Content).NotEmpty().MinimumLength(25);
         }
@@ -23,7 +24,7 @@ public static class UpdateArticle {
         : IRequestHandler<UpdateArticleCommand, Result<ArticleResponse>> {
         public async Task<Result<ArticleResponse>> Handle(UpdateArticleCommand request, CancellationToken cancellationToken) {
             var article = await articleRepository.GetArticleById(request.ArticleId);
-            var author = await userRepository.GetUserByUsername(request.Author);
+            var author = await userRepository.GetUserById(request.Author);
 
             var validationResult = await validator.ValidateAsync(Validation.Context(request, ("Article", article)));
             if (!validationResult.IsValid) {
@@ -37,6 +38,7 @@ public static class UpdateArticle {
 
     [MutationType]
     public class UpdateArticleMutation {
+		[RoleAuthorize(Constants.Role.Editor | Constants.Role.Admin)]
         public async Task<Result<ArticleResponse>> UpdateArticleAsync([Service] ISender sender, UpdateArticleCommand input) {
             return await sender.Send(input);
         }

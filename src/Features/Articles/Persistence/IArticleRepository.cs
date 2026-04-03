@@ -1,5 +1,5 @@
-using WomensWiki.Common.Interfaces;
-using WomensWiki.Domain;
+using WomensWiki.Infrastructure.Interfaces;
+using WomensWiki.Domain.Users;
 using WomensWiki.Domain.Articles;
 using Tag = WomensWiki.Domain.Tags.Tag;
 
@@ -13,4 +13,5 @@ public interface IArticleRepository : IRepository {
     Task<List<Article>> GetArticlesByTag(Tag tag, bool descending, int limit, int offset);
     Task<Article> CreateArticle(User user, string title, string content, List<Tag>? tags = null);
     Task<Article> UpdateArticle(Article article, User user, string content, string? summary = null);
+	Task<Article> DeleteArticle(Article article);
 }

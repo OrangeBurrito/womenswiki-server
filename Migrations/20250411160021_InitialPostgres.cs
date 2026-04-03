@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace WomensWiki.Migrations
+namespace WomensWiki.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
     public partial class InitialPostgres : Migration

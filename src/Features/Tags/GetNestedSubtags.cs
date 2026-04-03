@@ -1,8 +1,8 @@
 using System.Text.Json;
 using FluentValidation;
 using MediatR;
-using WomensWiki.Common.Validation;
-using WomensWiki.Contracts;
+using WomensWiki.Common;
+using WomensWiki.Common.Contracts;
 using WomensWiki.Domain.Tags;
 using WomensWiki.Features.Tags.Persistence;
 
@@ -11,7 +11,7 @@ namespace WomensWiki.Features.Tags;
 public static class GetNestedSubtags {
     public record GetNestedSubtagsRequest(string Tag) : IRequest<Result<TagTree>>;
 
-    public class GetNestedSubtagsValidator : AbstractValidator<GetNestedSubtagsRequest> {
+    public sealed class GetNestedSubtagsValidator : AbstractValidator<GetNestedSubtagsRequest> {
         public GetNestedSubtagsValidator() {
             RuleFor(x => x.Tag).TagExists();
         }

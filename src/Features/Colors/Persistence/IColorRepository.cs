@@ -1,4 +1,4 @@
-using WomensWiki.Common.Interfaces;
+using WomensWiki.Infrastructure.Interfaces;
 using WomensWiki.Domain.Colors;
 
 namespace WomensWiki.Features.Colors.Persistence;

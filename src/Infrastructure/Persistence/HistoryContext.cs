@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Migrations.Internal;
 
-namespace WomensWiki.src.Common;
+namespace WomensWiki.Infrastructure.Persistence;
 
 public class HistoryContext : NpgsqlHistoryRepository {
     public HistoryContext(HistoryRepositoryDependencies dependencies) : base(dependencies) {}

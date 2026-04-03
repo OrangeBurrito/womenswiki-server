@@ -1,7 +1,7 @@
 using FluentValidation;
 using MediatR;
-using WomensWiki.Common.Validation;
-using WomensWiki.Contracts;
+using WomensWiki.Common;
+using WomensWiki.Common.Contracts;
 using WomensWiki.Domain.Articles;
 using WomensWiki.Features.Articles.Persistence;
 
@@ -10,7 +10,7 @@ namespace WomensWiki.Features.Articles;
 public static class GetArticleById {
     public record GetArticleByIdRequest(Guid Id) : IRequest<Result<ArticleResponse>>;
 
-    public class GetArticleByIdValidator : AbstractValidator<GetArticleByIdRequest> {
+    public sealed class GetArticleByIdValidator : AbstractValidator<GetArticleByIdRequest> {
         public GetArticleByIdValidator() {
             RuleFor(x => x.Id).ArticleExists();
         }

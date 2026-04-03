@@ -1,9 +1,11 @@
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
-using WomensWiki.Common;
-using WomensWiki.Common.Interfaces;
-using WomensWiki.src.Common;
+using Microsoft.IdentityModel.Tokens;
+using WomensWiki.Infrastructure.Persistence;
+using WomensWiki.Infrastructure.Services;
+using WomensWiki.Infrastructure.Interfaces;
 
 namespace WomensWiki;
 
@@ -13,6 +15,12 @@ public static class DependencyInjection {
         o.UseNpgsql(connectionString, o => o.SetPostgresVersion(9,6))
             .ReplaceService<IHistoryRepository, HistoryContext>()
             .UseSnakeCaseNamingConvention()
+            .UseSeeding((context, _) => {
+                AppDbContextSeed.SeedInitialDataAsync((AppDbContext)context).GetAwaiter().GetResult();
+            })
+            .UseAsyncSeeding(async (context, _, cancellationToken) => {
+                await AppDbContextSeed.SeedInitialDataAsync((AppDbContext)context);
+            })
         );
 
         var repositoryTypes = assembly.GetTypes()
@@ -39,6 +47,10 @@ public static class DependencyInjection {
         }
 
         services.AddMemoryCache();
+        services.AddHttpClient<IdentityProviderService>((serviceProvider, client) => {
+            var config = serviceProvider.GetRequiredService<IConfiguration>();
+            client.BaseAddress = new Uri(config.GetValue<string>("Auth:BaseUrl")!);
+        });
     }
 
     public static void AddApplication(this IServiceCollection services, System.Reflection.Assembly assembly) {
@@ -46,14 +58,35 @@ public static class DependencyInjection {
         services.AddMediatR(c => c.RegisterServicesFromAssembly(assembly));
     }
 
-    public static void AddApi(this IServiceCollection services, string allowedHosts) {
+    public static void AddApi(this IServiceCollection services, ConfigurationManager configuration, bool isDevelopment) {
         services.AddCors(o => {
             o.AddPolicy("Localhost", p => p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader() );
-            o.AddPolicy("Prod", p => p.WithOrigins(allowedHosts.Split(";")).AllowAnyMethod().AllowAnyHeader() );
+            o.AddPolicy("Prod", p => p.WithOrigins(configuration["AllowedOrigins"].Split(";")).AllowAnyMethod().AllowAnyHeader() );
         });
+		
+		services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+			.AddJwtBearer(o => {
+				o.Audience = configuration["Auth:Audience"];
+				o.MetadataAddress = $"{configuration["Auth:BaseUrl"]}/.well-known/openid-configuration";
+                o.TokenValidationParameters = new TokenValidationParameters {
+					ValidIssuer = configuration["Auth:BaseUrl"],
+					ValidateIssuerSigningKey = true,
+					ValidateAudience = !isDevelopment,
+					ValidateIssuer = true
+                };
+				o.RequireHttpsMetadata = !isDevelopment;
+				o.MapInboundClaims = false;
+				o.Events = new JwtBearerEvents {
+					OnTokenValidated = async context => {
+					var idpService = context.HttpContext.RequestServices.GetRequiredService<IdentityProviderService>();
+					await idpService.TransformClaimsAsync(context);
+				}
+				};
+            });
         services
             .AddGraphQLServer()
             .AddTypes()
-            .AddSorting();
+            .AddSorting()
+			.AddAuthorization();
     }
 }

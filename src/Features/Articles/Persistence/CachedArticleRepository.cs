@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Caching.Memory;
 using WomensWiki.Domain;
 using WomensWiki.Domain.Articles;
+using WomensWiki.Domain.Users;
 
 namespace WomensWiki.Features.Articles.Persistence;
 
@@ -53,4 +54,12 @@ public class CachedArticleRepository(ArticleRepository repository, IMemoryCache 
         cache.Remove($"article-title={article.Title}");
         return updatedArticle;
     }
+
+	public async Task<Article> DeleteArticle(Article article) {
+		var result = await repository.DeleteArticle(article);
+		cache.Remove($"article-id={article.Id}");
+		cache.Remove($"article-title={article.Title}");
+		cache.Remove("articles");
+		return result;
+	}
 }

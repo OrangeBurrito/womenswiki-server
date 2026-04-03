@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using WomensWiki.Common;
-using WomensWiki.Domain;
+using WomensWiki.Infrastructure.Persistence;
+using WomensWiki.Domain.Users;
 using WomensWiki.Domain.Articles;
 using Tag = WomensWiki.Domain.Tags.Tag;
 
@@ -73,4 +73,15 @@ public class ArticleRepository(AppDbContext dbContext) : IArticleRepository {
         await dbContext.SaveChangesAsync();
         return article;
     }
+
+	public async Task<Article> DeleteArticle(Article article) {
+		var trackedArticle = await dbContext.Articles
+			.Include(a => a.History)
+			.FirstAsync(a => a.Id == article.Id);
+
+		dbContext.Revisions.RemoveRange(trackedArticle.History);
+		dbContext.Articles.Remove(trackedArticle);
+		await dbContext.SaveChangesAsync();
+		return article;
+	}
 }

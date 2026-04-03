@@ -1,10 +1,14 @@
-using WomensWiki.Contracts;
+using WomensWiki.Common.Contracts;
 
 namespace WomensWiki;
 
 public static class Result {
     public static Result<T> Success<T>(T data) => Result<T>.Success(data);
     public static Result<T> Failure<T>(List<Error> errors) => Result<T>.Failure(errors);
+
+	internal static Result<T> Failure<T>() {
+		throw new NotImplementedException();
+	}
 }
 
 public class Result<T> {

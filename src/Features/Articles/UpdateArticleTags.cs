@@ -1,8 +1,8 @@
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using WomensWiki.Common;
-using WomensWiki.Contracts;
+using WomensWiki.Infrastructure.Persistence;
+using WomensWiki.Common.Contracts;
 using WomensWiki.Domain.Articles;
 using WomensWiki.Domain.Tags;
 
@@ -11,7 +11,7 @@ namespace WomensWiki.Features.Articles;
 public static class UpdateArticleTags {
     public record UpdateArticleTagsCommand(Guid ArticleId, string Author, List<string> Tags) : IRequest<Result<ArticleResponse>>;
 
-    public class UpdateArticleTagsValidator : AbstractValidator<UpdateArticleTagsCommand> {
+    public sealed class UpdateArticleTagsValidator : AbstractValidator<UpdateArticleTagsCommand> {
         public UpdateArticleTagsValidator() {
             RuleFor(x => x.ArticleId).ArticleExists();
             RuleFor(x => x.Author).NotEmpty();

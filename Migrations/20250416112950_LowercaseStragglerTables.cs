@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace WomensWiki.Migrations
+namespace WomensWiki.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
     public partial class LowercaseStragglerTables : Migration

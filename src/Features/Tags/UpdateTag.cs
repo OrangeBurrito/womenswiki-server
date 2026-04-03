@@ -1,7 +1,7 @@
 using FluentValidation;
 using MediatR;
-using WomensWiki.Common.Validation;
-using WomensWiki.Contracts;
+using WomensWiki.Common;
+using WomensWiki.Common.Contracts;
 using WomensWiki.Domain.Tags;
 using WomensWiki.Features.Tags.Persistence;
 
@@ -10,7 +10,7 @@ namespace WomensWiki.Features.Tags;
 public static class UpdateTag {
     public record UpdateTagCommand(string tag, string parentTag) : IRequest<Result<TagResponse>>;
 
-    public class UpdateTagValidator : AbstractValidator<UpdateTagCommand> {
+    public sealed class UpdateTagValidator : AbstractValidator<UpdateTagCommand> {
         public UpdateTagValidator() {
             RuleFor(x => x.tag).TagExists();
             RuleFor(x => x.parentTag).TagExists("ParentTag").NotChildOfTag();

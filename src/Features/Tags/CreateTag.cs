@@ -1,8 +1,8 @@
 using FluentValidation;
 using MediatR;
-using WomensWiki.Contracts;
+using WomensWiki.Common.Contracts;
 using WomensWiki.Domain.Tags;
-using WomensWiki.Common.Validation;
+using WomensWiki.Common;
 using WomensWiki.Features.Tags.Persistence;
 using WomensWiki.Features.Colors.Persistence;
 
@@ -11,7 +11,7 @@ namespace WomensWiki.Features.Tags;
 public static class CreateTag {
     public record CreateTagCommand(string Name, string Color, string? ParentTag = null) : IRequest<Result<TagResponse>>;
 
-    public class CreateTagValidator : AbstractValidator<CreateTagCommand> {
+    public sealed class CreateTagValidator : AbstractValidator<CreateTagCommand> {
         public CreateTagValidator() {
             RuleFor(x => x.Name).NotEmpty().UniqueName().NoSpaces().MinimumLength(3);
             When(x => x.ParentTag != null, () => {

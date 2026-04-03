@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using WomensWiki.Common;
+using WomensWiki.Infrastructure.Persistence;
 using WomensWiki.Domain.Colors;
 using WomensWiki.Domain.Tags;
 using Tag = WomensWiki.Domain.Tags.Tag;
