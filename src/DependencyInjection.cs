@@ -63,26 +63,29 @@ public static class DependencyInjection {
             o.AddPolicy("Localhost", p => p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader() );
             o.AddPolicy("Prod", p => p.WithOrigins(configuration["AllowedOrigins"].Split(";")).AllowAnyMethod().AllowAnyHeader() );
         });
-		
-		services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-			.AddJwtBearer(o => {
-				o.Audience = configuration["Auth:Audience"];
-				o.MetadataAddress = $"{configuration["Auth:BaseUrl"]}/.well-known/openid-configuration";
-                o.TokenValidationParameters = new TokenValidationParameters {
-					ValidIssuer = configuration["Auth:BaseUrl"],
-					ValidateIssuerSigningKey = true,
-					ValidateAudience = !isDevelopment,
-					ValidateIssuer = true
-                };
-				o.RequireHttpsMetadata = !isDevelopment;
-				o.MapInboundClaims = false;
-				o.Events = new JwtBearerEvents {
-					OnTokenValidated = async context => {
-					var idpService = context.HttpContext.RequestServices.GetRequiredService<IdentityProviderService>();
-					await idpService.TransformClaimsAsync(context);
-				}
-				};
-            });
+
+        var authBaseUrl = configuration["Auth:BaseUrl"];
+        if (!string.IsNullOrEmpty(authBaseUrl)) {
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(o => {
+                    o.Audience = configuration["Auth:Audience"];
+                    o.MetadataAddress = $"{authBaseUrl}/.well-known/openid-configuration";
+                    o.TokenValidationParameters = new TokenValidationParameters {
+                        ValidIssuer = authBaseUrl,
+                        ValidateIssuerSigningKey = true,
+                        ValidateAudience = !isDevelopment,
+                        ValidateIssuer = true
+                    };
+                    o.RequireHttpsMetadata = !isDevelopment;
+                    o.MapInboundClaims = false;
+                    o.Events = new JwtBearerEvents {
+                        OnTokenValidated = async context => {
+                            var idpService = context.HttpContext.RequestServices.GetRequiredService<IdentityProviderService>();
+                            await idpService.TransformClaimsAsync(context);
+                        }
+                    };
+                });
+        }
         services
             .AddGraphQLServer()
             .AddTypes()

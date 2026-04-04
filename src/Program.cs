@@ -18,7 +18,8 @@ if (app.Environment.IsProduction()) {
     app.UseCors("Localhost");
 }
 
-app.UseAuthentication();
+if (!string.IsNullOrEmpty(builder.Configuration["Auth:BaseUrl"]))
+    app.UseAuthentication();
 
 app.MapGraphQL().WithOptions(new GraphQLServerOptions { Tool = { Enable = app.Environment.IsDevelopment() } });
 
