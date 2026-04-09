@@ -2,7 +2,6 @@ using System.Reflection.Metadata.Ecma335;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using WomensWiki.Infrastructure.Persistence;
-using WomensWiki.Common.Contracts;
 using WomensWiki.Features.Articles.Persistence;
 using WomensWiki.Features.Tags.Persistence;
 

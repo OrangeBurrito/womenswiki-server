@@ -2,12 +2,11 @@ using FluentValidation;
 using MediatR;
 using WomensWiki.Common;
 using WomensWiki.Common.Attributes;
-using WomensWiki.Common.Contracts;
 using WomensWiki.Domain.Articles;
 using WomensWiki.Features.Articles.Persistence;
 using WomensWiki.Features.Users.Persistence;
 
-namespace WomensWiki.Features;
+namespace WomensWiki.Features.Articles;
 
 public static class UpdateArticle {
     public record UpdateArticleCommand(Guid ArticleId, Guid Author, string Content, string? Summary = null) : IRequest<Result<ArticleResponse>>;
@@ -31,6 +30,7 @@ public static class UpdateArticle {
                 return Result.Failure<ArticleResponse>(ErrorMapper.Map(validationResult));
             }
 
+			
             await articleRepository.UpdateArticle(article, author, request.Content, request.Summary);
             return Result.Success(ArticleResponse.FromArticle(article));
         }

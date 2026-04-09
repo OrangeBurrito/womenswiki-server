@@ -1,5 +1,3 @@
-using WomensWiki.Common.Contracts;
-
 namespace WomensWiki;
 
 public static class Result {

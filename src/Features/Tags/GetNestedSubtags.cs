@@ -2,7 +2,6 @@ using System.Text.Json;
 using FluentValidation;
 using MediatR;
 using WomensWiki.Common;
-using WomensWiki.Common.Contracts;
 using WomensWiki.Domain.Tags;
 using WomensWiki.Features.Tags.Persistence;
 

@@ -1,6 +1,5 @@
 using FluentValidation;
 using MediatR;
-using WomensWiki.Common.Contracts;
 using WomensWiki.Domain.Tags;
 using WomensWiki.Common;
 using WomensWiki.Features.Tags.Persistence;

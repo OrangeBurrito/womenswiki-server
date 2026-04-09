@@ -1,7 +1,7 @@
 using WomensWiki.Domain.Articles;
 using Tag = WomensWiki.Domain.Tags.Tag;
 
-namespace WomensWiki.Common.Contracts;
+namespace WomensWiki.Features.Articles;
 
 public record ArticleResponse(Guid Id, DateTimeOffset CreatedAt, DateTimeOffset? UpdatedAt, string Title, string Content, List<Tag> Tags) {
     public static ArticleResponse FromArticle(Article article) {

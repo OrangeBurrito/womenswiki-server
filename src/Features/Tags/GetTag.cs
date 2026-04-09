@@ -1,5 +1,4 @@
 using MediatR;
-using WomensWiki.Common.Contracts;
 using WomensWiki.Features.Tags.Persistence;
 
 namespace WomensWiki.Features.Tags;

@@ -1,5 +1,4 @@
 using FluentValidation;
-using WomensWiki.Features.Tags;
 
 namespace WomensWiki.Common;
 
@@ -11,4 +10,11 @@ public static class Validation {
         }
         return context;
     }
+
+	public static T? Get<T>(this IValidationContext context, string key) {
+		if (context.RootContextData.TryGetValue(key, out var value) && value is T typedValue) {
+			return typedValue;
+		}
+		return default;
+	}
 }
