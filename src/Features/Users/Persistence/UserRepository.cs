@@ -52,7 +52,7 @@ public class UserRepository(AppDbContext dbContext) : IUserRepository {
 	}
 
 	public async Task DeleteNewUser(User user) {
-		if (user.CreatedAt.ToUniversalTime().AddMinutes(5) <= DateTime.UtcNow) {
+		if (DateTime.UtcNow < user.CreatedAt.ToUniversalTime().AddMinutes(5)) {
 			dbContext.Users.Remove(user);
 			await dbContext.SaveChangesAsync();
 		}

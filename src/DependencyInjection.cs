@@ -65,6 +65,7 @@ public static class DependencyInjection {
         });
 
         var authBaseUrl = configuration["Auth:BaseUrl"];
+
         if (!string.IsNullOrEmpty(authBaseUrl)) {
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(o => {

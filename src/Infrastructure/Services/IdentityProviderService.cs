@@ -19,15 +19,17 @@ public class IdentityProviderService(HttpClient httpClient, IConfiguration confi
 
 	public async Task TransformClaimsAsync(TokenValidatedContext context) {
 		var identity = context.Principal?.Identity as ClaimsIdentity;
-		if (identity == null) return;
+		if (identity == null ||
+			!Guid.TryParse(identity.FindFirst("sub")?.Value, out var userGuid)
+		){
+			context.Fail("Token has no claims identity or an invalid subject");
+			return;
+		}
 
-		var subClaim = identity.FindFirst("sub");
-		if (subClaim?.Value is string userId && Guid.TryParse(userId, out var userGuid)) {
-			var user = await userRepository.GetUserById(userGuid);
-			foreach (var role in user?.Roles ?? []) {
-				if (Enum.TryParse<Common.Constants.Role>(role.Name, ignoreCase: true, out var roleEnum)) {
-					identity.AddClaim(new Claim(ClaimTypes.Role, roleEnum.ToString()));
-				}
+		var user = await userRepository.GetUserById(userGuid);
+		foreach (var role in user?.Roles ?? []) {
+			if (Enum.TryParse<Common.Constants.Role>(role.Name, ignoreCase: true, out var roleEnum)) {
+				identity.AddClaim(new Claim(ClaimTypes.Role, roleEnum.ToString()));
 			}
 		}
 	}

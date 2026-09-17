@@ -40,7 +40,7 @@ public static class UserValidators {
 
 	public static IRuleBuilderOptions<T, string> UniqueEmail<T>(this IRuleBuilder<T, string> ruleBuilder) {
 		return (IRuleBuilderOptions<T, string>)ruleBuilder.Custom((value, context) => {
-			var user = context.Get<User>("User");
+			var user = context.Get<User>("Email");
 			if (user?.Email == value) {
 				var failure = new ValidationFailure("Email", $"User with that email already exists") {
 					ErrorCode = "DuplicateEmail"

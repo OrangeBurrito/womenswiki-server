@@ -9,7 +9,7 @@ namespace WomensWiki.Features.Users;
 
 public static class GetUserByUsername {
 	public record GetUserByUsernameRequest(string Username) : IRequest<Result<GetUserByUsernameResponse>>;
-	public record GetUserByUsernameResponse(Guid Id, string Username, string Email, List<Role> Roles);
+	public record GetUserByUsernameResponse(Guid Id, string Username, List<Role> Roles);
 
 	public sealed class GetUserByUsernameValidator : AbstractValidator<GetUserByUsernameRequest> {
 		public GetUserByUsernameValidator() {
@@ -29,7 +29,7 @@ public static class GetUserByUsername {
 				return Result.Failure<GetUserByUsernameResponse>(ErrorMapper.Map(validationResult));
 			}
 
-			return Result.Success(new GetUserByUsernameResponse(user.Id, user.Username, user.Email, user.Roles));
+			return Result.Success(new GetUserByUsernameResponse(user.Id, user.Username, user.Roles));
 		}
 	}
 
