@@ -14,6 +14,7 @@ public interface ITagRepository : IRepository {
     Task<List<Tag>> GetSubtags(Tag tag);
     Task<TagTree?> GetNestedSubtags(Tag tag, string? match = null);
     Task<List<Tag>> GetMatchingTags(List<string> tags);
+	Task<TagGraph> GetTagsGraph();
     Task<Tag> CreateTag(string name, Color color, Tag? parentTag);
     Task<Tag> UpdateTag(Tag tag, Tag parentTag);
     Task<Tag> UpdateTagColor(Tag tag, Color color);

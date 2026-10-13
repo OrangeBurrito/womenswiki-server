@@ -5,7 +5,7 @@ using WomensWiki.Common;
 using WomensWiki.Domain.Users;
 using WomensWiki.Features.Users.Persistence;
 
-namespace WomensWiki.src.Features.Users;
+namespace WomensWiki.Features.Users;
 
 public class CreateUser {
 	public record CreateUserCommand(string Username, string Email, string Password) : IRequest<Result<CreateUserResponse>>;

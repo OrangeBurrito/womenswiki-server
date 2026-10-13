@@ -31,10 +31,12 @@ public static class TagValidators {
     public static IRuleBuilderOptions<T, string> TagExists<T>(this IRuleBuilder<T, string> ruleBuilder, string? property = "Tag") {
         return (IRuleBuilderOptions<T, string>)ruleBuilder.Custom((value, context) => {
            	var tag = context.Get<Tag>(property);
-			var failure = new ValidationFailure(property, $"Tag does not exist: {value}") {
-				ErrorCode = "TagDoesNotExist"
-			};
-			context.AddFailure(failure);
+			if (tag == null) {
+				var failure = new ValidationFailure(property, $"Tag does not exist: {value}") {
+					ErrorCode = "TagDoesNotExist"
+				};
+				context.AddFailure(failure);
+			}
         });
     }
 

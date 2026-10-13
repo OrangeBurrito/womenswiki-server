@@ -30,6 +30,13 @@ public class Tag : Entity {
     }
 }
 
+public class TagGraph {
+	public List<Tag> Tags { get; private set; } = new();
+	public List<TagEdge> Edges { get; private set; } = new();
+}
+
+public record TagEdge(Tag Parent, Tag Child);
+
 public class TagTree {
     public Tag Tag { get; private set; } = null!;
     public List<TagTree> Subtags { get; private set; } = new();

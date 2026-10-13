@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WomensWiki.Domain;
 using WomensWiki.Domain.Articles;
 using WomensWiki.Domain.Colors;
+using WomensWiki.Domain.Tags;
 using WomensWiki.Domain.Users;
 using Tag = WomensWiki.Domain.Tags.Tag;
 

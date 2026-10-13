@@ -93,17 +93,11 @@ public class IdentityProviderService(HttpClient httpClient, IConfiguration confi
 
 		var result = await ExecuteHttpRequestAsync(
 			async () => await httpClient.PostAsync(
-				$"{configuration["Auth:AdminUrl"]}partialImport",
+				$"{configuration["Auth:AdminUrl"]}users",
 				JsonContent.Create(new {
-					ifResourceExists = "FAIL",
-					users = new[] {
-						new {
-							id, username, email,
-							createdTimestamp = createdAt.ToUnixTimeMilliseconds(),
-							enabled = true,
-							credentials = new[] { new { type = "password", value = password, temporary = false } }
-						}
-					}
+					id, username, email,
+					enabled = true,
+					credentials = new[] { new { type = "password", value = password, temporary = false } }
 				})
 			),
 			"Keycloak.Unavailable", "Failed to connect to Keycloak"
@@ -119,6 +113,14 @@ public class IdentityProviderService(HttpClient httpClient, IConfiguration confi
 			var errorContent = await response.Content.ReadAsStringAsync();
 			return Result.Failure<Unit>([new Error("Keycloak.CreateFailed", $"Failed to create user in Keycloak: {errorContent}")]);
 		}
+
+		var sendEmailResult = await ExecuteHttpRequestAsync(
+			async () => await httpClient.PutAsync(
+				$"{configuration["Auth:AdminUrl"]}users/{id}/send-verify-email",
+				null
+			),
+			"Keycloak.Unavailable", "Failed to connect to Keycloak"
+		);
 
 		return Result.Success(Unit.Value);
 	}

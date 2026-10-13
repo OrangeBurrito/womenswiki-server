@@ -71,6 +71,15 @@ public class TagRepository(AppDbContext dbContext) : ITagRepository {
         return await dbContext.Tags.Where(t => tags.Contains(t.Name)).ToListAsync();
     }
 
+	public async Task<TagGraph> GetTagsGraph() {
+		// return new TagGraph(await dbContext.Tags
+		// 	.Include(t => t.ParentTags).ThenInclude(pt => pt.Color).AsNoTracking()
+		// 	.Include(t => t.Articles).AsNoTracking()
+		// 	.Include(t => t.Color).AsNoTracking()
+		// 	.ToListAsync());
+	}
+
+
     public async Task<Tag> CreateTag(string name, Color color, Tag? parentTag) {
         var tag = Tag.Create(name, color, parentTag);
         await dbContext.Tags.AddAsync(tag);
