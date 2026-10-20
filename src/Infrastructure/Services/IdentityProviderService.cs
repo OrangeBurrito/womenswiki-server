@@ -93,11 +93,17 @@ public class IdentityProviderService(HttpClient httpClient, IConfiguration confi
 
 		var result = await ExecuteHttpRequestAsync(
 			async () => await httpClient.PostAsync(
-				$"{configuration["Auth:AdminUrl"]}users",
+				$"{configuration["Auth:AdminUrl"]}partialImport",
 				JsonContent.Create(new {
-					id, username, email,
-					enabled = true,
-					credentials = new[] { new { type = "password", value = password, temporary = false } }
+					ifResourceExists = "FAIL",
+					users = new[] {
+						new {
+							id, username, email,
+							credentials = new[] { new { type = "password", value = password, temporary = false } },
+							createdTimestamp = createdAt.ToUnixTimeMilliseconds(),
+							enabled = true
+						}
+					}
 				})
 			),
 			"Keycloak.Unavailable", "Failed to connect to Keycloak"
@@ -107,7 +113,7 @@ public class IdentityProviderService(HttpClient httpClient, IConfiguration confi
 
 		var response = result.Data!;
 		if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
-			return Result.Failure<Unit>([new Error("Keycloak.UserExists", "User already exists in Keycloak.")]);
+			return Result.Failure<Unit>([new Error("Keycloak.UserExists", "User already exists in Keycloak")]);
 
 		if (!response.IsSuccessStatusCode) {
 			var errorContent = await response.Content.ReadAsStringAsync();

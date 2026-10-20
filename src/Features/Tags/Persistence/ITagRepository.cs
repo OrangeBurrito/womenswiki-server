@@ -3,7 +3,7 @@ namespace WomensWiki.Features.Tags.Persistence;
 using WomensWiki.Infrastructure.Interfaces;
 using WomensWiki.Domain.Colors;
 using WomensWiki.Domain.Tags;
-using Tag = WomensWiki.Domain.Tags.Tag;
+using Tag = Domain.Tags.Tag;
 
 public interface ITagRepository : IRepository {
     Task<Tag?> GetTag(string name);
@@ -13,8 +13,9 @@ public interface ITagRepository : IRepository {
     Task<List<Tag>> GetSubtags(IQueryable<Tag> query, Tag tag);
     Task<List<Tag>> GetSubtags(Tag tag);
     Task<TagTree?> GetNestedSubtags(Tag tag, string? match = null);
+    // Task<TagTree?> GetNestedSubtags2(Tag tag, int? depth = 2, string? match = null);
     Task<List<Tag>> GetMatchingTags(List<string> tags);
-	Task<TagGraph> GetTagsGraph();
+	// Task<TagGraph> GetTagsGraph();
     Task<Tag> CreateTag(string name, Color color, Tag? parentTag);
     Task<Tag> UpdateTag(Tag tag, Tag parentTag);
     Task<Tag> UpdateTagColor(Tag tag, Color color);
