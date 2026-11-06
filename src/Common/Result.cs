@@ -3,6 +3,7 @@ namespace WomensWiki;
 public static class Result {
     public static Result<T> Success<T>(T data) => Result<T>.Success(data);
     public static Result<T> Failure<T>(List<Error> errors) => Result<T>.Failure(errors);
+	public static Result<T> Failure<T>(Error error) => Result<T>.Failure(new List<Error> { error });
 
 	internal static Result<T> Failure<T>() {
 		throw new NotImplementedException();

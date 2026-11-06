@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
@@ -7,14 +8,16 @@ using WomensWiki.Features.Users.Persistence;
 
 namespace WomensWiki.Infrastructure.Services;
 
-public class IdentityProviderService(HttpClient httpClient, IConfiguration configuration, IUserRepository userRepository) {
+public class IdentityProviderService(HttpClient httpClient, IConfiguration configuration, IUserRepository userRepository, ILogger<IdentityProviderService> logger) {
 	private string? adminToken;
 	private DateTime tokenExpiry = DateTime.MinValue;
 
-	private static async Task<Result<T>> ExecuteHttpRequestAsync<T>(Func<Task<T>> httpCall, string errorCode, string errorMessage) {
+	private async Task<Result<T>> ExecuteHttpRequestAsync<T>(Func<Task<T>> httpCall, Error error) {
 		try { return Result.Success(await httpCall()); }
-		catch (HttpRequestException ex) { return Result.Failure<T>([new Error(errorCode, $"{errorMessage}: {ex.Message}")]); }
-		catch (TaskCanceledException) { return Result.Failure<T>([new Error(errorCode, $"{errorMessage}: Request timeout")]); }
+		catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException) {
+			logger.LogError(ex, "Error occurred while executing HTTP request");
+			return Result.Failure<T>(error);
+		}
 	}
 
 	public async Task TransformClaimsAsync(TokenValidatedContext context) {
@@ -46,7 +49,7 @@ public class IdentityProviderService(HttpClient httpClient, IConfiguration confi
 					["client_secret"] = configuration["Auth:ClientSecret"]!
 				})
 			),
-			"Keycloak.Unavailable", "Failed to connect to Keycloak"
+			Errors.AdminTokenFailed(HttpStatusCode.ServiceUnavailable)
 		);
 
 		if (result.IsFailure) return Result.Failure<string>(result.Errors!);
@@ -54,7 +57,8 @@ public class IdentityProviderService(HttpClient httpClient, IConfiguration confi
 		var response = result.Data!;
 		if (!response.IsSuccessStatusCode) {
 			var errorContent = await response.Content.ReadAsStringAsync();
-			return Result.Failure<string>([new Error("Keycloak.AuthFailed", $"Failed to get admin token. Status: {response.StatusCode}, Error: {errorContent}")]);
+			logger.LogError($"Keycloak user creation failed. Status: {response.StatusCode}");
+			return Result.Failure<string>(Errors.AdminTokenFailed(response.StatusCode));
 		}
 		
 		var tokenResponse = await response.Content.ReadFromJsonAsync<JsonElement>();
@@ -106,18 +110,18 @@ public class IdentityProviderService(HttpClient httpClient, IConfiguration confi
 					}
 				})
 			),
-			"Keycloak.Unavailable", "Failed to connect to Keycloak"
+			Errors.CreateUserFailed
 		);
 
 		if (result.IsFailure) return Result.Failure<Unit>(result.Errors!);
 
 		var response = result.Data!;
 		if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
-			return Result.Failure<Unit>([new Error("Keycloak.UserExists", "User already exists in Keycloak")]);
+			return Result.Failure<Unit>(Errors.UserExists);
 
 		if (!response.IsSuccessStatusCode) {
 			var errorContent = await response.Content.ReadAsStringAsync();
-			return Result.Failure<Unit>([new Error("Keycloak.CreateFailed", $"Failed to create user in Keycloak: {errorContent}")]);
+			return Result.Failure<Unit>(Errors.CreateUserFailed);
 		}
 
 		var sendEmailResult = await ExecuteHttpRequestAsync(
@@ -125,9 +129,16 @@ public class IdentityProviderService(HttpClient httpClient, IConfiguration confi
 				$"{configuration["Auth:AdminUrl"]}users/{id}/send-verify-email",
 				null
 			),
-			"Keycloak.Unavailable", "Failed to connect to Keycloak"
+			Errors.AuthUnavailable
 		);
 
 		return Result.Success(Unit.Value);
+	}
+
+	static class Errors {
+		public static readonly Error AuthUnavailable = new("Keycloak.Unavailable", $"Failed to connect to Keycloak");
+		public static readonly Error UserExists = new("Keycloak.UserExists", "User already exists in Keycloak");
+		public static readonly Error CreateUserFailed = new("Keycloak.CreateFailed", "Failed to create user in Keycloak");
+		public static Error AdminTokenFailed(HttpStatusCode status) => new("Keycloak.AdminAuthFailed", $"Failed to get admin token. Status: {status}");
 	}
 }

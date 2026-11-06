@@ -6,6 +6,9 @@ using Microsoft.IdentityModel.Tokens;
 using WomensWiki.Infrastructure.Persistence;
 using WomensWiki.Infrastructure.Services;
 using WomensWiki.Infrastructure.Interfaces;
+using System.Threading.RateLimiting;
+using WomensWiki.Common;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace WomensWiki;
 
@@ -59,10 +62,69 @@ public static class DependencyInjection {
     }
 
     public static void AddApi(this IServiceCollection services, ConfigurationManager configuration, bool isDevelopment) {
+		// services.Configure<ForwardedHeadersOptions>(o => {
+		// 	o.ForwardedHeaders = ForwardedHeaders.XForwardedFor;
+		// 	foreach(var ip in configuration["AllowedOrigins"].Split(";")) {
+		// 		o.KnownProxies.Add(IPAddress.Parse(ip));
+		// 	}
+		// });
+
         services.AddCors(o => {
             o.AddPolicy("Localhost", p => p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader() );
             o.AddPolicy("Prod", p => p.WithOrigins(configuration["AllowedOrigins"].Split(";")).AllowAnyMethod().AllowAnyHeader() );
         });
+
+		services.AddRateLimiter(o => {
+			o.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+			o.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext => {
+				var userId = httpContext.User.FindUserId();
+				if (userId != null) {
+					return RateLimitPartition.GetTokenBucketLimiter(
+						$"user:{userId}",
+						_ => new TokenBucketRateLimiterOptions {
+							// TokenLimit = 4,
+							// TokensPerPeriod = 1,
+							TokenLimit = 300,
+							TokensPerPeriod = 60,
+							ReplenishmentPeriod = TimeSpan.FromSeconds(10),
+							QueueLimit = 0
+						}
+					);
+				} else {
+					return RateLimitPartition.GetTokenBucketLimiter(
+						$"ip:{httpContext.Connection.RemoteIpAddress}",
+						_ => new TokenBucketRateLimiterOptions {
+							TokenLimit = 200,
+							TokensPerPeriod = 40,
+							ReplenishmentPeriod = TimeSpan.FromSeconds(10),
+							QueueLimit = 0
+						}
+					);
+				};
+			});
+			// o.OnRejected = (context, cancellationToken) => {
+			// 	var user = context.HttpContext.User.FindUserId();
+			// 	var logger = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>()
+			// 		.CreateLogger("RateLimiter");
+
+			// 	logger.LogWarning("Rate limit exceeded for" + ((user != null ? $" user {user}" : "anonymous " ), $"at IP {context.HttpContext.Connection.RemoteIpAddress}"));
+
+			// 		// .LogWarning("Rate limited exceeded for" + (user != null ? $" user {user}" : $" IP: {context.HttpContext.Connection.RemoteIpAddress}"));
+			// 		return ValueTask.CompletedTask;
+			// };
+		});
+		
+	services.AddSingleton<RateLimitExceededHostedService>();
+	services.AddHostedService(sp => sp.GetRequiredService<RateLimitExceededHostedService>());
+
+	services.AddOptions<RateLimiterOptions>().Configure<RateLimitExceededHostedService>((o, rateLimitExceededService) => {
+		o.OnRejected = (context, cancellationToken) => {
+			var user = context.HttpContext.User.FindUserId();
+			var partition = (user != null ? $"user:{user}" : $"anonymous") + $" at IP:{context.HttpContext.Connection.RemoteIpAddress}";
+			rateLimitExceededService.Record(partition);
+			return ValueTask.CompletedTask;
+		};
+	});
 
         var authBaseUrl = configuration["Auth:BaseUrl"];
 
